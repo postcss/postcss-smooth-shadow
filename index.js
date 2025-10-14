@@ -44,6 +44,7 @@ function findMatchingParen(str, startIndex) {
     else if (str[i] === ')') depth--
     if (depth === 0) return i
   }
+  /* c8 ignore next */
   return -1
 }
 
@@ -55,14 +56,9 @@ module.exports = () => {
         let index = 0
 
         let funcStart = result.indexOf('--smooth-shadow(', index)
-        for (
-          ;
-          funcStart !== -1;
-          funcStart = result.indexOf('--smooth-shadow(', index)
-        ) {
+        while (funcStart !== -1) {
           let parenStart = funcStart + '--smooth-shadow('.length - 1
           let parenEnd = findMatchingParen(result, parenStart)
-
           if (parenEnd === -1) break
 
           let paramString = result.substring(parenStart + 1, parenEnd)
@@ -77,15 +73,16 @@ module.exports = () => {
           let [color, size, spread = '3'] = params
 
           let replacement =
-            `0 calc(${size} / ${spread}) calc(${size} / ${spread} * 2) rgb(from ${color} r g b / 0.25), ` +
-            `0 calc(${size} / ${spread} * 2) calc(${size} / ${spread} * 3) rgb(from ${color} r g b / 0.18), ` +
-            `0 calc(${size} / ${spread} * 3) calc(${size} / ${spread} * 4) rgb(from ${color} r g b / 0.12)`
+            `0 calc(${size} / ${spread}) calc(${size} / ${spread} * 2) oklch(from ${color} l c h / 0.25), ` +
+            `0 calc(${size} / ${spread} * 2) calc(${size} / ${spread} * 3) oklch(from ${color} l c h / 0.18), ` +
+            `0 calc(${size} / ${spread} * 3) calc(${size} / ${spread} * 4) oklch(from ${color} l c h / 0.12)`
 
           result =
             result.substring(0, funcStart) +
             replacement +
             result.substring(parenEnd + 1)
           index = funcStart + replacement.length
+          funcStart = result.indexOf('--smooth-shadow(', index)
         }
 
         decl.value = result
