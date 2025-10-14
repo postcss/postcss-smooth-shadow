@@ -4,7 +4,7 @@
      title="Philosopher’s stone, logo of PostCSS"
      src="https://postcss.org/logo-leftp.svg">
 
-[PostCSS] plugin
+[PostCSS] plugin to generate more realistic [“smooth” shadows](https://tobiasahlin.com/blog/layered-smooth-box-shadows/).
 
 ```css
 .card {
