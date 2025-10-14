@@ -43,7 +43,8 @@ npm install --save-dev postcss postcss-smooth-shadow
 in the project root, `"postcss"` section in `package.json`
 or `postcss` in bundle config.
 
-If you do not use PostCSS, add it according to [official docs]
+If you do not use PostCSS, add it according
+to [official docs](https://github.com/postcss/postcss#usage)
 and set this plugin in settings.
 
 **Step 3:** Add the plugin to plugins list:
