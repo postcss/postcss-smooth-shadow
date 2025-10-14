@@ -7,11 +7,18 @@
 [PostCSS] plugin
 
 ```css
-
+.card {
+  box-shadow: --smooth-shadow(#000, 10px, 2);
+}
 ```
 
 ```css
-
+.card {
+  box-shadow:
+    0 calc(10px / 2) calc(10px / 2 * 2) oklch(from #000 l c h / 0.25),
+    0 calc(10px / 2 * 2) calc(10px / 2 * 3) oklch(from #000 l c h / 0.18),
+    0 calc(10px / 2 * 3) calc(10px / 2 * 4) oklch(from #000 l c h / 0.12);
+}
 ```
 
 [postcss-utilities] collection is better for `clearfix` and other popular hacks.
