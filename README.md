@@ -15,8 +15,8 @@
 ```css
 .card {
   box-shadow:
-    0 calc(0.1111 * 0.5rem) calc(0.1111 * 1rem) rgb(from oklch(0 0 0 / 10%) r g b / calc(alpha * 0.333)),
-    0 calc(0.4444 * 0.5rem) calc(0.4444 * 1rem) rgb(from oklch(0 0 0 / 10%) r g b / calc(alpha * 0.667)),
+    calc(0.111 * 0.5rem) calc(0.111 * 1rem) rgb(from oklch(0 0 0 / 10%) r g b / calc(alpha * 0.333)),
+    0 calc(0.444 * 0.5rem) calc(0.444 * 1rem) rgb(from oklch(0 0 0 / 10%) r g b / calc(alpha * 0.667)),
     0 calc(1 * 0.5rem) calc(1 * 1rem) rgb(from oklch(0 0 0 / 10%) r g b / calc(alpha * 1));
 }
 ```
@@ -89,6 +89,6 @@ There is low-level JS API:
 ```ts
 import { renderShadows } from 'postcss-smooth-shadow'
 
-renderShadows('soft', false, '10px', '0', '8px', 'oklch(0 0 0 / 10%)')
-// => "0 calc(0.0278 * 1rem) calc(0.0278 * 2rem) rgb(from oklch(0 0 0 / 10%)…"
+renderShadows('soft', false, '0', '0.5rem', '1rem', 'oklch(0 0 0 / 10%)')
+// => ["calc(0.111 * 0.5rem) calc(0.111 * 1rem) …", …]
 ```
