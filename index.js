@@ -48,7 +48,8 @@ function findMatchingParen(str, startIndex) {
   return -1
 }
 
-module.exports = () => {
+let plugin = () => {
+  console.log(1)
   return {
     Declaration(decl) {
       if (decl.value.includes('--smooth-shadow(')) {
@@ -91,4 +92,6 @@ module.exports = () => {
     postcssPlugin: 'postcss-smooth-shadow'
   }
 }
-module.exports.postcss = true
+plugin.postcss = true
+
+export default plugin

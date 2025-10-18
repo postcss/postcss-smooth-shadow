@@ -1,0 +1,24 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>PostCSS Smooth Shadow demo</title>
+    <style>
+      body {
+        padding: 2rem;
+      }
+      .example {
+        width: 10rem;
+        height: 5rem;
+        border-radius: 6px;
+
+        &.is-1 {
+          box-shadow: --smooth-shadow(oklch(0 0 0 / 10%), 10px, 2);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="example is-1"></div>
+  </body>
+</html>

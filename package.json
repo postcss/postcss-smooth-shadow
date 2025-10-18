@@ -2,6 +2,7 @@
   "name": "postcss-smooth-shadow",
   "version": "0.0.0",
   "description": "PostCSS plugin to generate more realistic shadows",
+  "type": "module",
   "keywords": [
     "postcss",
     "css",
@@ -12,7 +13,8 @@
   "scripts": {
     "test:coverage": "bnt --coverage 100",
     "test:lint": "eslint .",
-    "test": "pnpm run /^test:/"
+    "test": "pnpm run /^test:/",
+    "start": "vite --host 0.0.0.0  test/demo/"
   },
   "author": "Andrey Sitnik <andrey@sitnik.ru>",
   "license": "MIT",
@@ -40,7 +42,8 @@
     "clean-publish": "^5.2.2",
     "eslint": "^9.37.0",
     "multiocular": "^0.8.1",
-    "postcss": "^8.5.6"
+    "postcss": "^8.5.6",
+    "vite": "^7.1.10"
   },
   "prettier": {
     "arrowParens": "avoid",
