@@ -21,9 +21,11 @@
         box-sizing: border-box;
         padding: 1rem 1rem;
         margin: 2.5rem 1rem;
+        color: oklch(0.5 0.16 142);
 
         &.is-native {
-          box-shadow: 0 32px 24px oklch(0 0 0 / 15%);
+          box-shadow: 0 18px 24px oklch(0 0 0 / 40%);
+          color: oklch(0.5 0.2 20);
         }
 
         &.is-1 {
@@ -73,7 +75,7 @@
   <body>
     <pre class="example is-native">
 
-0 32px 24px oklch(0 0 0 / 15%)
+0 18px 24px oklch(0 0 0 / 40%)
     </pre>
     <pre class="example is-1">
 --soft-shadow(
