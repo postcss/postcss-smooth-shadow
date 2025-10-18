@@ -1,0 +1,1 @@
+a { box-shadow: --soft-shadow(var(--x) var(--y) var(--blur) var(--color)); }

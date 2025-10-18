@@ -1,0 +1,1 @@
+a { box-shadow: --sharp-shadow(1px 2px 12px rgba(255, 0, 0, calc(var(--alpha) * 0.8))); }

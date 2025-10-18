@@ -1,0 +1,1 @@
+a { box-shadow: calc(0.25 * 1px) calc(0.25 * 2px) calc(0.25 * 12px) rgb(from rgba(255, 0, 0, calc(var(--alpha) * 0.8)) r g b / calc(alpha * 1)), calc(1 * 1px) calc(1 * 2px) calc(1 * 12px) rgb(from rgba(255, 0, 0, calc(var(--alpha) * 0.8)) r g b / calc(alpha * 0.5)); }

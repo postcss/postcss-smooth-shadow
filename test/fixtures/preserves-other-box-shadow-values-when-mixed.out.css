@@ -1,0 +1,1 @@
+a { box-shadow: inset 0 1px 0 white, calc(1 * 2px) calc(1 * 2px) calc(1 * 4px) rgb(from black r g b / calc(alpha * 1)), 0 0 0 1px blue; }

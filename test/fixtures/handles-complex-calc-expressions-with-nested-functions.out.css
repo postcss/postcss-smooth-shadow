@@ -1,0 +1,1 @@
+a { box-shadow: calc(0.25 * calc(min(1px, 2px) + max(3px, 4px))) calc(0.25 * calc(clamp(1px, 50%, 10px))) calc(0.25 * 12px) rgb(from red r g b / calc(alpha * 1)), calc(1 * calc(min(1px, 2px) + max(3px, 4px))) calc(1 * calc(clamp(1px, 50%, 10px))) calc(1 * 12px) rgb(from red r g b / calc(alpha * 1)); }
