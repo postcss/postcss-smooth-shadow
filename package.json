@@ -1,6 +1,6 @@
 {
   "name": "postcss-smooth-shadow",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "PostCSS plugin to generate more realistic smooth shadows",
   "type": "module",
   "keywords": [
