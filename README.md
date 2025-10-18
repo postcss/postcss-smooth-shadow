@@ -4,31 +4,27 @@
      title="Philosopher’s stone, logo of PostCSS"
      src="https://postcss.org/logo-leftp.svg">
 
-[PostCSS] plugin to generate more realistic [“smooth” shadows](https://tobiasahlin.com/blog/layered-smooth-box-shadows/).
+[PostCSS](https://github.com/postcss/postcss) plugin to generate more realistic [“smooth” shadows](https://tobiasahlin.com/blog/layered-smooth-box-shadows/).
 
 ```css
 .card {
-  box-shadow: --smooth-shadow(#000, 10px, 2);
+  box-shadow: --soft-shadow(0 1rem 2rem oklch(0 0 0 / 10%));
 }
 ```
 
 ```css
 .card {
   box-shadow:
-    0 calc(10px / 2) calc(10px / 2 * 2) oklch(from #000 l c h / 0.25),
-    0 calc(10px / 2 * 2) calc(10px / 2 * 3) oklch(from #000 l c h / 0.18),
-    0 calc(10px / 2 * 3) calc(10px / 2 * 4) oklch(from #000 l c h / 0.12);
+    0 calc(0.0278 * 1rem) calc(0.0278 * 2rem) rgb(from oklch(0 0 0 / 10%) r g b / calc(alpha * 0.167)),
+    0 calc(0.1111 * 1rem) calc(0.1111 * 2rem) rgb(from oklch(0 0 0 / 10%) r g b / calc(alpha * 0.333)),
+    0 calc(0.25 * 1rem) calc(0.25 * 2rem) rgb(from oklch(0 0 0 / 10%) r g b / calc(alpha * 0.5)),
+    0 calc(0.4444 * 1rem) calc(0.4444 * 2rem) rgb(from oklch(0 0 0 / 10%) r g b / calc(alpha * 0.667)),
+    0 calc(0.6944 * 1rem) calc(0.6944 * 2rem) rgb(from oklch(0 0 0 / 10%) r g b / calc(alpha * 0.833)),
+    0 calc(1 * 1rem) calc(1 * 2rem) rgb(from oklch(0 0 0 / 10%) r g b / calc(alpha * 1));
 }
 ```
 
-[postcss-utilities] collection is better for `clearfix` and other popular hacks.
-For simple cases you can use [postcss-define-property].
-
-[postcss-define-property]: https://github.com/daleeidd/postcss-define-property
-[postcss-utilities]:       https://github.com/ismamz/postcss-utilities
-[postcss-simple-vars]:     https://github.com/postcss/postcss-simple-vars
-[postcss-nested]:          https://github.com/postcss/postcss-nested
-[PostCSS]:                 https://github.com/postcss/postcss
+It supports non-px units like `rem`, 3 shadow types, inset shadows, and any color format (we recommends [`oklch()`](https://evilmartians.com/chronicles/oklch-in-css-why-quit-rgb-hsl)).
 
 ---
 
@@ -63,4 +59,39 @@ module.exports = {
     require('autoprefixer')
   ]
 }
+```
+
+### CSS API
+
+The plugins supports 3 shadows types. You can try them on [`smoothshadows.com`](https://smoothshadows.com).
+
+```css
+.soft {
+  box-shadow: --soft-shadow(10px 0 8px oklch(0 0 0 / 10%));
+}
+.sharp {
+  box-shadow: --sharp-shadow(10px 0 8px oklch(0 0 0 / 10%));
+}
+.linear {
+  box-shadow: --linear-shadow(10px 0 8px oklch(0 0 0 / 10%));
+}
+```
+
+It also supports `inset` shadows:
+
+```css
+.inset {
+  box-shadow: --soft-shadow(inset 10px 0 8px oklch(0 0 0 / 10%));
+}
+```
+
+### JS API
+
+There is low-level JS API:
+
+```ts
+import { renderShadows } from 'postcss-smooth-shadow'
+
+renderShadows('soft', false, '10px', '0', '8px', 'oklch(0 0 0 / 10%)')
+// => "0 calc(0.0278 * 1rem) calc(0.0278 * 2rem) rgb(from oklch(0 0 0 / 10%)…"
 ```

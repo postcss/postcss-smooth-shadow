@@ -5,20 +5,81 @@
     <title>PostCSS Smooth Shadow demo</title>
     <style>
       body {
+        margin: 0;
         padding: 2rem;
+        background: oklch(0.97 0.003 264);
+        min-height: 100vh;
+        box-sizing: border-box;
       }
       .example {
-        width: 10rem;
-        height: 5rem;
+        width: 15rem;
         border-radius: 6px;
+        font-size: 10px;
+        font-family: monospace;
+        background: oklch(1 0 0);
+        box-sizing: border-box;
+        padding: 1rem 1rem;
+
+        & + & {
+          margin-top: 3rem;
+        }
 
         &.is-1 {
-          box-shadow: --smooth-shadow(oklch(0 0 0 / 10%), 10px, 2);
+          box-shadow: --soft-shadow(0 32px 24px oklch(0 0 0 / 8%));
+        }
+
+        &.is-2 {
+          box-shadow: --sharp-shadow(0 32px 24px oklch(0 0 0 / 8%));
+        }
+
+        &.is-3 {
+          box-shadow: --linear-shadow(0 32px 24px oklch(0 0 0 / 8%));
+        }
+
+        &.is-4 {
+          box-shadow: --soft-shadow(16px 32px 24px oklch(0 0 0 / 8%));
+        }
+
+        &.is-5 {
+          box-shadow: --sharp-shadow(0 1px 2px oklch(0 0 0 / 20%));
+        }
+
+        &.is-6 {
+          box-shadow: --sharp-shadow(inset 0 2px 5px oklch(0 0 0 / 20%));
         }
       }
     </style>
   </head>
   <body>
-    <div class="example is-1"></div>
+    <pre class="example is-1">
+--soft-shadow(
+  0 32px 24px oklch(0 0 0 / 8%)
+)</pre
+    >
+    <pre class="example is-2">
+--sharp-shadow(
+  0 32px 24px oklch(0 0 0 / 8%)
+)</pre
+    >
+    <pre class="example is-3">
+--linear-shadow(
+  0 32px 24px oklch(0 0 0 / 8%)
+)</pre
+    >
+    <pre class="example is-4">
+--soft-shadow(
+  16px 32px 24px oklch(0 0 0 / 8%)
+)</pre
+    >
+    <pre class="example is-5">
+--sharp-shadow(
+  0 1px 2px oklch(0 0 0 / 15%)
+)</pre
+    >
+    <pre class="example is-6">
+--sharp-shadow(
+  inset 0 1px 2px oklch(0 0 0 / 15%)
+)</pre
+    >
   </body>
 </html>

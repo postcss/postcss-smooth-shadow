@@ -1,8 +1,8 @@
-let { equal, throws } = require('node:assert/strict')
-let { test } = require('node:test')
-let postcss = require('postcss')
+import { equal, throws } from 'node:assert/strict'
+import { test } from 'node:test'
+import postcss from 'postcss'
 
-let plugin = require('../')
+import plugin from '../index.js'
 
 function run(input, output, opts) {
   let result = postcss([plugin(opts)]).process(input, { from: undefined })
@@ -11,121 +11,283 @@ function run(input, output, opts) {
   return result
 }
 
-test('replaces --smooth-shadow with layered box shadows', () => {
+test('replaces sharp-shadow function', () => {
   run(
-    '.card { box-shadow: --smooth-shadow(#000, 10px, 2); }',
-    '.card { box-shadow: 0 calc(10px / 2) calc(10px / 2 * 2) oklch(from #000 l c h / 0.25), 0 calc(10px / 2 * 2) calc(10px / 2 * 3) oklch(from #000 l c h / 0.18), 0 calc(10px / 2 * 3) calc(10px / 2 * 4) oklch(from #000 l c h / 0.12); }'
+    'a { box-shadow: --sharp-shadow(2px 4px 10px red); }',
+    'a { box-shadow: calc(0.25 * 2px) calc(0.25 * 4px) calc(0.25 * 10px) rgb(from red r g b / calc(alpha * 1)), calc(1 * 2px) calc(1 * 4px) calc(1 * 10px) rgb(from red r g b / calc(alpha * 0.5)); }'
   )
 })
 
-test('handles CSS variables as parameters', () => {
+test('replaces soft-shadow function', () => {
   run(
-    '.element { box-shadow: --smooth-shadow(var(--shadow-color), var(--shadow-size), var(--shadow-spread)); }',
-    '.element { box-shadow: 0 calc(var(--shadow-size) / var(--shadow-spread)) calc(var(--shadow-size) / var(--shadow-spread) * 2) oklch(from var(--shadow-color) l c h / 0.25), 0 calc(var(--shadow-size) / var(--shadow-spread) * 2) calc(var(--shadow-size) / var(--shadow-spread) * 3) oklch(from var(--shadow-color) l c h / 0.18), 0 calc(var(--shadow-size) / var(--shadow-spread) * 3) calc(var(--shadow-size) / var(--shadow-spread) * 4) oklch(from var(--shadow-color) l c h / 0.12); }'
+    'a { box-shadow: --soft-shadow(1px 2px 12px blue); }',
+    'a { box-shadow: calc(0.25 * 1px) calc(0.25 * 2px) calc(0.25 * 12px) rgb(from blue r g b / calc(alpha * 0.5)), calc(1 * 1px) calc(1 * 2px) calc(1 * 12px) rgb(from blue r g b / calc(alpha * 1)); }'
   )
 })
 
-test('uses default spread value of 3 when omitted', () => {
+test('replaces linear-shadow function', () => {
   run(
-    '.card { box-shadow: --smooth-shadow(#000, 12px); }',
-    '.card { box-shadow: 0 calc(12px / 3) calc(12px / 3 * 2) oklch(from #000 l c h / 0.25), 0 calc(12px / 3 * 2) calc(12px / 3 * 3) oklch(from #000 l c h / 0.18), 0 calc(12px / 3 * 3) calc(12px / 3 * 4) oklch(from #000 l c h / 0.12); }'
+    'a { box-shadow: --linear-shadow(3px 6px 18px green); }',
+    'a { box-shadow: calc(0.1111 * 3px) calc(0.1111 * 6px) calc(0.1111 * 18px) rgb(from green r g b / calc(alpha * 1)), calc(0.4444 * 3px) calc(0.4444 * 6px) calc(0.4444 * 18px) rgb(from green r g b / calc(alpha * 1)), calc(1 * 3px) calc(1 * 6px) calc(1 * 18px) rgb(from green r g b / calc(alpha * 1)); }'
   )
 })
 
-test('handles mix of two and three parameter calls', () => {
+test('handles multiple shadow functions', () => {
   run(
-    '.mixed { box-shadow: --smooth-shadow(#000, 6px), --smooth-shadow(#fff, 4px, 2); }',
-    '.mixed { box-shadow: 0 calc(6px / 3) calc(6px / 3 * 2) oklch(from #000 l c h / 0.25), 0 calc(6px / 3 * 2) calc(6px / 3 * 3) oklch(from #000 l c h / 0.18), 0 calc(6px / 3 * 3) calc(6px / 3 * 4) oklch(from #000 l c h / 0.12), 0 calc(4px / 2) calc(4px / 2 * 2) oklch(from #fff l c h / 0.25), 0 calc(4px / 2 * 2) calc(4px / 2 * 3) oklch(from #fff l c h / 0.18), 0 calc(4px / 2 * 3) calc(4px / 2 * 4) oklch(from #fff l c h / 0.12); }'
+    'a { box-shadow: --sharp-shadow(1px 1px 6px black), 0px 2px 4px red; }',
+    'a { box-shadow: calc(1 * 1px) calc(1 * 1px) calc(1 * 6px) rgb(from black r g b / calc(alpha * 1)), 0px 2px 4px red; }'
   )
 })
 
-test('handles multiple --smooth-shadow calls in same declaration', () => {
+test('handles nested parentheses in calc() functions', () => {
   run(
-    '.card { box-shadow: --smooth-shadow(#000, 5px, 1), inset --smooth-shadow(#fff, 2px, 1); }',
-    '.card { box-shadow: 0 calc(5px / 1) calc(5px / 1 * 2) oklch(from #000 l c h / 0.25), 0 calc(5px / 1 * 2) calc(5px / 1 * 3) oklch(from #000 l c h / 0.18), 0 calc(5px / 1 * 3) calc(5px / 1 * 4) oklch(from #000 l c h / 0.12), inset 0 calc(2px / 1) calc(2px / 1 * 2) oklch(from #fff l c h / 0.25), 0 calc(2px / 1 * 2) calc(2px / 1 * 3) oklch(from #fff l c h / 0.18), 0 calc(2px / 1 * 3) calc(2px / 1 * 4) oklch(from #fff l c h / 0.12); }'
+    'a { box-shadow: --sharp-shadow(calc(1% + 1px) 2px 10rem red); }',
+    'a { box-shadow: calc(0.0014 * calc(1% + 1px)) calc(0.0014 * 2px) calc(0.0014 * 10rem) rgb(from red r g b / calc(alpha * 1)), calc(0.0055 * calc(1% + 1px)) calc(0.0055 * 2px) calc(0.0055 * 10rem) rgb(from red r g b / calc(alpha * 0.963)), calc(0.0123 * calc(1% + 1px)) calc(0.0123 * 2px) calc(0.0123 * 10rem) rgb(from red r g b / calc(alpha * 0.926)), calc(0.0219 * calc(1% + 1px)) calc(0.0219 * 2px) calc(0.0219 * 10rem) rgb(from red r g b / calc(alpha * 0.889)), calc(0.0343 * calc(1% + 1px)) calc(0.0343 * 2px) calc(0.0343 * 10rem) rgb(from red r g b / calc(alpha * 0.852)), calc(0.0494 * calc(1% + 1px)) calc(0.0494 * 2px) calc(0.0494 * 10rem) rgb(from red r g b / calc(alpha * 0.815)), calc(0.0672 * calc(1% + 1px)) calc(0.0672 * 2px) calc(0.0672 * 10rem) rgb(from red r g b / calc(alpha * 0.778)), calc(0.0878 * calc(1% + 1px)) calc(0.0878 * 2px) calc(0.0878 * 10rem) rgb(from red r g b / calc(alpha * 0.741)), calc(0.1111 * calc(1% + 1px)) calc(0.1111 * 2px) calc(0.1111 * 10rem) rgb(from red r g b / calc(alpha * 0.704)), calc(0.1372 * calc(1% + 1px)) calc(0.1372 * 2px) calc(0.1372 * 10rem) rgb(from red r g b / calc(alpha * 0.667)), calc(0.166 * calc(1% + 1px)) calc(0.166 * 2px) calc(0.166 * 10rem) rgb(from red r g b / calc(alpha * 0.63)), calc(0.1975 * calc(1% + 1px)) calc(0.1975 * 2px) calc(0.1975 * 10rem) rgb(from red r g b / calc(alpha * 0.593)), calc(0.2318 * calc(1% + 1px)) calc(0.2318 * 2px) calc(0.2318 * 10rem) rgb(from red r g b / calc(alpha * 0.556)), calc(0.2689 * calc(1% + 1px)) calc(0.2689 * 2px) calc(0.2689 * 10rem) rgb(from red r g b / calc(alpha * 0.519)), calc(0.3086 * calc(1% + 1px)) calc(0.3086 * 2px) calc(0.3086 * 10rem) rgb(from red r g b / calc(alpha * 0.481)), calc(0.3512 * calc(1% + 1px)) calc(0.3512 * 2px) calc(0.3512 * 10rem) rgb(from red r g b / calc(alpha * 0.444)), calc(0.3964 * calc(1% + 1px)) calc(0.3964 * 2px) calc(0.3964 * 10rem) rgb(from red r g b / calc(alpha * 0.407)), calc(0.4444 * calc(1% + 1px)) calc(0.4444 * 2px) calc(0.4444 * 10rem) rgb(from red r g b / calc(alpha * 0.37)), calc(0.4952 * calc(1% + 1px)) calc(0.4952 * 2px) calc(0.4952 * 10rem) rgb(from red r g b / calc(alpha * 0.333)), calc(0.5487 * calc(1% + 1px)) calc(0.5487 * 2px) calc(0.5487 * 10rem) rgb(from red r g b / calc(alpha * 0.296)), calc(0.6049 * calc(1% + 1px)) calc(0.6049 * 2px) calc(0.6049 * 10rem) rgb(from red r g b / calc(alpha * 0.259)), calc(0.6639 * calc(1% + 1px)) calc(0.6639 * 2px) calc(0.6639 * 10rem) rgb(from red r g b / calc(alpha * 0.222)), calc(0.7257 * calc(1% + 1px)) calc(0.7257 * 2px) calc(0.7257 * 10rem) rgb(from red r g b / calc(alpha * 0.185)), calc(0.7901 * calc(1% + 1px)) calc(0.7901 * 2px) calc(0.7901 * 10rem) rgb(from red r g b / calc(alpha * 0.148)), calc(0.8573 * calc(1% + 1px)) calc(0.8573 * 2px) calc(0.8573 * 10rem) rgb(from red r g b / calc(alpha * 0.111)), calc(0.9273 * calc(1% + 1px)) calc(0.9273 * 2px) calc(0.9273 * 10rem) rgb(from red r g b / calc(alpha * 0.074)), calc(1 * calc(1% + 1px)) calc(1 * 2px) calc(1 * 10rem) rgb(from red r g b / calc(alpha * 0.037)); }'
   )
 })
 
-test('works with different color formats', () => {
+test('handles nested parentheses in oklch() colors', () => {
   run(
-    '.test { box-shadow: --smooth-shadow(rgb(255, 0, 0), 8px, 2); }',
-    '.test { box-shadow: 0 calc(8px / 2) calc(8px / 2 * 2) oklch(from rgb(255, 0, 0) l c h / 0.25), 0 calc(8px / 2 * 2) calc(8px / 2 * 3) oklch(from rgb(255, 0, 0) l c h / 0.18), 0 calc(8px / 2 * 3) calc(8px / 2 * 4) oklch(from rgb(255, 0, 0) l c h / 0.12); }'
+    'a { box-shadow: --soft-shadow(2px 4px 12px oklch(0.5 0.2 180 / var(--alpha))); }',
+    'a { box-shadow: calc(0.25 * 2px) calc(0.25 * 4px) calc(0.25 * 12px) rgb(from oklch(0.5 0.2 180 / var(--alpha)) r g b / calc(alpha * 0.5)), calc(1 * 2px) calc(1 * 4px) calc(1 * 12px) rgb(from oklch(0.5 0.2 180 / var(--alpha)) r g b / calc(alpha * 1)); }'
   )
 })
 
-test('handles decimal values', () => {
+test('handles complex nested functions', () => {
   run(
-    '.button { box-shadow: --smooth-shadow(#333, 4.5px, 1.5); }',
-    '.button { box-shadow: 0 calc(4.5px / 1.5) calc(4.5px / 1.5 * 2) oklch(from #333 l c h / 0.25), 0 calc(4.5px / 1.5 * 2) calc(4.5px / 1.5 * 3) oklch(from #333 l c h / 0.18), 0 calc(4.5px / 1.5 * 3) calc(4.5px / 1.5 * 4) oklch(from #333 l c h / 0.12); }'
+    'a { box-shadow: --linear-shadow(calc(1% + 1px) 2px 10rem oklch(0 0 0 / var(--test))); }',
+    'a { box-shadow: calc(0.0014 * calc(1% + 1px)) calc(0.0014 * 2px) calc(0.0014 * 10rem) rgb(from oklch(0 0 0 / var(--test)) r g b / calc(alpha * 1)), calc(0.0055 * calc(1% + 1px)) calc(0.0055 * 2px) calc(0.0055 * 10rem) rgb(from oklch(0 0 0 / var(--test)) r g b / calc(alpha * 1)), calc(0.0123 * calc(1% + 1px)) calc(0.0123 * 2px) calc(0.0123 * 10rem) rgb(from oklch(0 0 0 / var(--test)) r g b / calc(alpha * 1)), calc(0.0219 * calc(1% + 1px)) calc(0.0219 * 2px) calc(0.0219 * 10rem) rgb(from oklch(0 0 0 / var(--test)) r g b / calc(alpha * 1)), calc(0.0343 * calc(1% + 1px)) calc(0.0343 * 2px) calc(0.0343 * 10rem) rgb(from oklch(0 0 0 / var(--test)) r g b / calc(alpha * 1)), calc(0.0494 * calc(1% + 1px)) calc(0.0494 * 2px) calc(0.0494 * 10rem) rgb(from oklch(0 0 0 / var(--test)) r g b / calc(alpha * 1)), calc(0.0672 * calc(1% + 1px)) calc(0.0672 * 2px) calc(0.0672 * 10rem) rgb(from oklch(0 0 0 / var(--test)) r g b / calc(alpha * 1)), calc(0.0878 * calc(1% + 1px)) calc(0.0878 * 2px) calc(0.0878 * 10rem) rgb(from oklch(0 0 0 / var(--test)) r g b / calc(alpha * 1)), calc(0.1111 * calc(1% + 1px)) calc(0.1111 * 2px) calc(0.1111 * 10rem) rgb(from oklch(0 0 0 / var(--test)) r g b / calc(alpha * 1)), calc(0.1372 * calc(1% + 1px)) calc(0.1372 * 2px) calc(0.1372 * 10rem) rgb(from oklch(0 0 0 / var(--test)) r g b / calc(alpha * 1)), calc(0.166 * calc(1% + 1px)) calc(0.166 * 2px) calc(0.166 * 10rem) rgb(from oklch(0 0 0 / var(--test)) r g b / calc(alpha * 1)), calc(0.1975 * calc(1% + 1px)) calc(0.1975 * 2px) calc(0.1975 * 10rem) rgb(from oklch(0 0 0 / var(--test)) r g b / calc(alpha * 1)), calc(0.2318 * calc(1% + 1px)) calc(0.2318 * 2px) calc(0.2318 * 10rem) rgb(from oklch(0 0 0 / var(--test)) r g b / calc(alpha * 1)), calc(0.2689 * calc(1% + 1px)) calc(0.2689 * 2px) calc(0.2689 * 10rem) rgb(from oklch(0 0 0 / var(--test)) r g b / calc(alpha * 1)), calc(0.3086 * calc(1% + 1px)) calc(0.3086 * 2px) calc(0.3086 * 10rem) rgb(from oklch(0 0 0 / var(--test)) r g b / calc(alpha * 1)), calc(0.3512 * calc(1% + 1px)) calc(0.3512 * 2px) calc(0.3512 * 10rem) rgb(from oklch(0 0 0 / var(--test)) r g b / calc(alpha * 1)), calc(0.3964 * calc(1% + 1px)) calc(0.3964 * 2px) calc(0.3964 * 10rem) rgb(from oklch(0 0 0 / var(--test)) r g b / calc(alpha * 1)), calc(0.4444 * calc(1% + 1px)) calc(0.4444 * 2px) calc(0.4444 * 10rem) rgb(from oklch(0 0 0 / var(--test)) r g b / calc(alpha * 1)), calc(0.4952 * calc(1% + 1px)) calc(0.4952 * 2px) calc(0.4952 * 10rem) rgb(from oklch(0 0 0 / var(--test)) r g b / calc(alpha * 1)), calc(0.5487 * calc(1% + 1px)) calc(0.5487 * 2px) calc(0.5487 * 10rem) rgb(from oklch(0 0 0 / var(--test)) r g b / calc(alpha * 1)), calc(0.6049 * calc(1% + 1px)) calc(0.6049 * 2px) calc(0.6049 * 10rem) rgb(from oklch(0 0 0 / var(--test)) r g b / calc(alpha * 1)), calc(0.6639 * calc(1% + 1px)) calc(0.6639 * 2px) calc(0.6639 * 10rem) rgb(from oklch(0 0 0 / var(--test)) r g b / calc(alpha * 1)), calc(0.7257 * calc(1% + 1px)) calc(0.7257 * 2px) calc(0.7257 * 10rem) rgb(from oklch(0 0 0 / var(--test)) r g b / calc(alpha * 1)), calc(0.7901 * calc(1% + 1px)) calc(0.7901 * 2px) calc(0.7901 * 10rem) rgb(from oklch(0 0 0 / var(--test)) r g b / calc(alpha * 1)), calc(0.8573 * calc(1% + 1px)) calc(0.8573 * 2px) calc(0.8573 * 10rem) rgb(from oklch(0 0 0 / var(--test)) r g b / calc(alpha * 1)), calc(0.9273 * calc(1% + 1px)) calc(0.9273 * 2px) calc(0.9273 * 10rem) rgb(from oklch(0 0 0 / var(--test)) r g b / calc(alpha * 1)), calc(1 * calc(1% + 1px)) calc(1 * 2px) calc(1 * 10rem) rgb(from oklch(0 0 0 / var(--test)) r g b / calc(alpha * 1)); }'
   )
 })
 
-test('leaves other declarations unchanged', () => {
+test('handles user example with complex nested functions', () => {
   run(
-    '.normal { color: red; background: blue; }',
-    '.normal { color: red; background: blue; }'
+    'a { box-shadow: --sharp-shadow(calc(1% + 1px) 2px 10rem oklch(0 0 0 / var(--test))); }',
+    'a { box-shadow: calc(0.0014 * calc(1% + 1px)) calc(0.0014 * 2px) calc(0.0014 * 10rem) rgb(from oklch(0 0 0 / var(--test)) r g b / calc(alpha * 1)), calc(0.0055 * calc(1% + 1px)) calc(0.0055 * 2px) calc(0.0055 * 10rem) rgb(from oklch(0 0 0 / var(--test)) r g b / calc(alpha * 0.963)), calc(0.0123 * calc(1% + 1px)) calc(0.0123 * 2px) calc(0.0123 * 10rem) rgb(from oklch(0 0 0 / var(--test)) r g b / calc(alpha * 0.926)), calc(0.0219 * calc(1% + 1px)) calc(0.0219 * 2px) calc(0.0219 * 10rem) rgb(from oklch(0 0 0 / var(--test)) r g b / calc(alpha * 0.889)), calc(0.0343 * calc(1% + 1px)) calc(0.0343 * 2px) calc(0.0343 * 10rem) rgb(from oklch(0 0 0 / var(--test)) r g b / calc(alpha * 0.852)), calc(0.0494 * calc(1% + 1px)) calc(0.0494 * 2px) calc(0.0494 * 10rem) rgb(from oklch(0 0 0 / var(--test)) r g b / calc(alpha * 0.815)), calc(0.0672 * calc(1% + 1px)) calc(0.0672 * 2px) calc(0.0672 * 10rem) rgb(from oklch(0 0 0 / var(--test)) r g b / calc(alpha * 0.778)), calc(0.0878 * calc(1% + 1px)) calc(0.0878 * 2px) calc(0.0878 * 10rem) rgb(from oklch(0 0 0 / var(--test)) r g b / calc(alpha * 0.741)), calc(0.1111 * calc(1% + 1px)) calc(0.1111 * 2px) calc(0.1111 * 10rem) rgb(from oklch(0 0 0 / var(--test)) r g b / calc(alpha * 0.704)), calc(0.1372 * calc(1% + 1px)) calc(0.1372 * 2px) calc(0.1372 * 10rem) rgb(from oklch(0 0 0 / var(--test)) r g b / calc(alpha * 0.667)), calc(0.166 * calc(1% + 1px)) calc(0.166 * 2px) calc(0.166 * 10rem) rgb(from oklch(0 0 0 / var(--test)) r g b / calc(alpha * 0.63)), calc(0.1975 * calc(1% + 1px)) calc(0.1975 * 2px) calc(0.1975 * 10rem) rgb(from oklch(0 0 0 / var(--test)) r g b / calc(alpha * 0.593)), calc(0.2318 * calc(1% + 1px)) calc(0.2318 * 2px) calc(0.2318 * 10rem) rgb(from oklch(0 0 0 / var(--test)) r g b / calc(alpha * 0.556)), calc(0.2689 * calc(1% + 1px)) calc(0.2689 * 2px) calc(0.2689 * 10rem) rgb(from oklch(0 0 0 / var(--test)) r g b / calc(alpha * 0.519)), calc(0.3086 * calc(1% + 1px)) calc(0.3086 * 2px) calc(0.3086 * 10rem) rgb(from oklch(0 0 0 / var(--test)) r g b / calc(alpha * 0.481)), calc(0.3512 * calc(1% + 1px)) calc(0.3512 * 2px) calc(0.3512 * 10rem) rgb(from oklch(0 0 0 / var(--test)) r g b / calc(alpha * 0.444)), calc(0.3964 * calc(1% + 1px)) calc(0.3964 * 2px) calc(0.3964 * 10rem) rgb(from oklch(0 0 0 / var(--test)) r g b / calc(alpha * 0.407)), calc(0.4444 * calc(1% + 1px)) calc(0.4444 * 2px) calc(0.4444 * 10rem) rgb(from oklch(0 0 0 / var(--test)) r g b / calc(alpha * 0.37)), calc(0.4952 * calc(1% + 1px)) calc(0.4952 * 2px) calc(0.4952 * 10rem) rgb(from oklch(0 0 0 / var(--test)) r g b / calc(alpha * 0.333)), calc(0.5487 * calc(1% + 1px)) calc(0.5487 * 2px) calc(0.5487 * 10rem) rgb(from oklch(0 0 0 / var(--test)) r g b / calc(alpha * 0.296)), calc(0.6049 * calc(1% + 1px)) calc(0.6049 * 2px) calc(0.6049 * 10rem) rgb(from oklch(0 0 0 / var(--test)) r g b / calc(alpha * 0.259)), calc(0.6639 * calc(1% + 1px)) calc(0.6639 * 2px) calc(0.6639 * 10rem) rgb(from oklch(0 0 0 / var(--test)) r g b / calc(alpha * 0.222)), calc(0.7257 * calc(1% + 1px)) calc(0.7257 * 2px) calc(0.7257 * 10rem) rgb(from oklch(0 0 0 / var(--test)) r g b / calc(alpha * 0.185)), calc(0.7901 * calc(1% + 1px)) calc(0.7901 * 2px) calc(0.7901 * 10rem) rgb(from oklch(0 0 0 / var(--test)) r g b / calc(alpha * 0.148)), calc(0.8573 * calc(1% + 1px)) calc(0.8573 * 2px) calc(0.8573 * 10rem) rgb(from oklch(0 0 0 / var(--test)) r g b / calc(alpha * 0.111)), calc(0.9273 * calc(1% + 1px)) calc(0.9273 * 2px) calc(0.9273 * 10rem) rgb(from oklch(0 0 0 / var(--test)) r g b / calc(alpha * 0.074)), calc(1 * calc(1% + 1px)) calc(1 * 2px) calc(1 * 10rem) rgb(from oklch(0 0 0 / var(--test)) r g b / calc(alpha * 0.037)); }'
   )
 })
 
-test('works in other properties besides box-shadow', () => {
-  run(
-    '.custom { filter: drop-shadow(--smooth-shadow(#000, 3px, 1)); }',
-    '.custom { filter: drop-shadow(0 calc(3px / 1) calc(3px / 1 * 2) oklch(from #000 l c h / 0.25), 0 calc(3px / 1 * 2) calc(3px / 1 * 3) oklch(from #000 l c h / 0.18), 0 calc(3px / 1 * 3) calc(3px / 1 * 4) oklch(from #000 l c h / 0.12)); }'
-  )
-})
-
-test('throws error for insufficient parameters', () => {
-  let input = '.error { box-shadow: --smooth-shadow(#000); }'
+test('throws error for unclosed parenthesis in shadow function', () => {
   throws(() => {
-    postcss([plugin]).process(input, { from: undefined }).css
-  }, '--smooth-shadow() requires 2 or 3 parameters')
+    run('a { box-shadow: "--sharp-shadow(calc(1px"; }', '')
+  }, /Unclosed parenthesis/)
 })
 
-test('throws error for too many parameters', () => {
-  let input = '.error { box-shadow: --smooth-shadow(#000, 10px, 2, extra); }'
+test('ignores declarations without shadow functions', () => {
+  run(
+    'a { color: red; background: blue; }',
+    'a { color: red; background: blue; }'
+  )
+})
+
+test('throws error for wrong parameter count - too few', () => {
   throws(() => {
-    postcss([plugin]).process(input, { from: undefined }).css
-  }, '--smooth-shadow() requires 2 or 3 parameters')
+    run('a { box-shadow: --sharp-shadow(1px 2px 3px); }', '')
+  }, /requires exactly 4 parameters/)
 })
 
-test('handles quoted parameters with single quotes', () => {
+test('throws error for wrong parameter count - too many', () => {
+  throws(() => {
+    run('a { box-shadow: --soft-shadow(1px 2px 3px red extra); }', '')
+  }, /requires exactly 4 parameters/)
+})
+
+test('throws error for wrong parameter count - no parameters', () => {
+  throws(() => {
+    run('a { box-shadow: --linear-shadow(); }', '')
+  }, /requires exactly 4 parameters/)
+})
+
+test('handles different blur values for layer calculation', () => {
   run(
-    `.card { box-shadow: --smooth-shadow('rgba(255, 0, 0, 0.5)', 10px); }`,
-    `.card { box-shadow: 0 calc(10px / 3) calc(10px / 3 * 2) oklch(from 'rgba(255, 0, 0, 0.5)' l c h / 0.25), 0 calc(10px / 3 * 2) calc(10px / 3 * 3) oklch(from 'rgba(255, 0, 0, 0.5)' l c h / 0.18), 0 calc(10px / 3 * 3) calc(10px / 3 * 4) oklch(from 'rgba(255, 0, 0, 0.5)' l c h / 0.12); }`
+    'a { box-shadow: --sharp-shadow(1px 1px 6px red); }',
+    'a { box-shadow: calc(1 * 1px) calc(1 * 1px) calc(1 * 6px) rgb(from red r g b / calc(alpha * 1)); }'
   )
 })
 
-test('handles quoted parameters with double quotes', () => {
+test('handles large blur values creating many layers', () => {
   run(
-    `.card { box-shadow: --smooth-shadow("rgba(0, 255, 0, 0.8)", 8px, 2); }`,
-    `.card { box-shadow: 0 calc(8px / 2) calc(8px / 2 * 2) oklch(from "rgba(0, 255, 0, 0.8)" l c h / 0.25), 0 calc(8px / 2 * 2) calc(8px / 2 * 3) oklch(from "rgba(0, 255, 0, 0.8)" l c h / 0.18), 0 calc(8px / 2 * 3) calc(8px / 2 * 4) oklch(from "rgba(0, 255, 0, 0.8)" l c h / 0.12); }`
+    'a { box-shadow: --sharp-shadow(2px 2px 36px black); }',
+    'a { box-shadow: calc(0.0278 * 2px) calc(0.0278 * 2px) calc(0.0278 * 36px) rgb(from black r g b / calc(alpha * 1)), calc(0.1111 * 2px) calc(0.1111 * 2px) calc(0.1111 * 36px) rgb(from black r g b / calc(alpha * 0.833)), calc(0.25 * 2px) calc(0.25 * 2px) calc(0.25 * 36px) rgb(from black r g b / calc(alpha * 0.667)), calc(0.4444 * 2px) calc(0.4444 * 2px) calc(0.4444 * 36px) rgb(from black r g b / calc(alpha * 0.5)), calc(0.6944 * 2px) calc(0.6944 * 2px) calc(0.6944 * 36px) rgb(from black r g b / calc(alpha * 0.333)), calc(1 * 2px) calc(1 * 2px) calc(1 * 36px) rgb(from black r g b / calc(alpha * 0.167)); }'
   )
 })
 
-test('handles complex nested functions in parameters', () => {
+test('handles CSS variables in parameters', () => {
   run(
-    '.card { box-shadow: --smooth-shadow(calc(10px + 5px), min(20px, 30px), 2); }',
-    '.card { box-shadow: 0 calc(min(20px, 30px) / 2) calc(min(20px, 30px) / 2 * 2) oklch(from calc(10px + 5px) l c h / 0.25), 0 calc(min(20px, 30px) / 2 * 2) calc(min(20px, 30px) / 2 * 3) oklch(from calc(10px + 5px) l c h / 0.18), 0 calc(min(20px, 30px) / 2 * 3) calc(min(20px, 30px) / 2 * 4) oklch(from calc(10px + 5px) l c h / 0.12); }'
+    'a { box-shadow: --soft-shadow(var(--x) var(--y) var(--blur) var(--color)); }',
+    'a { box-shadow: calc(0.04 * var(--x)) calc(0.04 * var(--y)) calc(0.04 * var(--blur)) rgb(from var(--color) r g b / calc(alpha * 0.2)), calc(0.16 * var(--x)) calc(0.16 * var(--y)) calc(0.16 * var(--blur)) rgb(from var(--color) r g b / calc(alpha * 0.4)), calc(0.36 * var(--x)) calc(0.36 * var(--y)) calc(0.36 * var(--blur)) rgb(from var(--color) r g b / calc(alpha * 0.6)), calc(0.64 * var(--x)) calc(0.64 * var(--y)) calc(0.64 * var(--blur)) rgb(from var(--color) r g b / calc(alpha * 0.8)), calc(1 * var(--x)) calc(1 * var(--y)) calc(1 * var(--blur)) rgb(from var(--color) r g b / calc(alpha * 1)); }'
   )
 })
 
-test('handles quoted strings with commas inside', () => {
+test('handles complex calc() expressions with nested functions', () => {
   run(
-    `.card { box-shadow: --smooth-shadow("rgb(255, 0, 0)", 10px); }`,
-    `.card { box-shadow: 0 calc(10px / 3) calc(10px / 3 * 2) oklch(from "rgb(255, 0, 0)" l c h / 0.25), 0 calc(10px / 3 * 2) calc(10px / 3 * 3) oklch(from "rgb(255, 0, 0)" l c h / 0.18), 0 calc(10px / 3 * 3) calc(10px / 3 * 4) oklch(from "rgb(255, 0, 0)" l c h / 0.12); }`
+    'a { box-shadow: --linear-shadow(calc(min(1px, 2px) + max(3px, 4px)) calc(clamp(1px, 50%, 10px)) 12px red); }',
+    'a { box-shadow: calc(0.25 * calc(min(1px, 2px) + max(3px, 4px))) calc(0.25 * calc(clamp(1px, 50%, 10px))) calc(0.25 * 12px) rgb(from red r g b / calc(alpha * 1)), calc(1 * calc(min(1px, 2px) + max(3px, 4px))) calc(1 * calc(clamp(1px, 50%, 10px))) calc(1 * 12px) rgb(from red r g b / calc(alpha * 1)); }'
   )
 })
 
-test('handles declarations without --smooth-shadow', () => {
+test('handles rgba() with calc() alpha values', () => {
   run(
-    '.card { box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); }',
-    '.card { box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); }'
+    'a { box-shadow: --sharp-shadow(1px 2px 12px rgba(255, 0, 0, calc(var(--alpha) * 0.8))); }',
+    'a { box-shadow: calc(0.25 * 1px) calc(0.25 * 2px) calc(0.25 * 12px) rgb(from rgba(255, 0, 0, calc(var(--alpha) * 0.8)) r g b / calc(alpha * 1)), calc(1 * 1px) calc(1 * 2px) calc(1 * 12px) rgb(from rgba(255, 0, 0, calc(var(--alpha) * 0.8)) r g b / calc(alpha * 0.5)); }'
   )
 })
 
-test('handles deeply nested parentheses in parameters', () => {
+test('handles hsl() colors with complex expressions', () => {
   run(
-    '.card { box-shadow: --smooth-shadow(hsl(calc(180deg + 45deg), calc(50% + 10%), calc(25% + 5%)), max(10px, min(20px, 15px)), 2); }',
-    '.card { box-shadow: 0 calc(max(10px, min(20px, 15px)) / 2) calc(max(10px, min(20px, 15px)) / 2 * 2) oklch(from hsl(calc(180deg + 45deg), calc(50% + 10%), calc(25% + 5%)) l c h / 0.25), 0 calc(max(10px, min(20px, 15px)) / 2 * 2) calc(max(10px, min(20px, 15px)) / 2 * 3) oklch(from hsl(calc(180deg + 45deg), calc(50% + 10%), calc(25% + 5%)) l c h / 0.18), 0 calc(max(10px, min(20px, 15px)) / 2 * 3) calc(max(10px, min(20px, 15px)) / 2 * 4) oklch(from hsl(calc(180deg + 45deg), calc(50% + 10%), calc(25% + 5%)) l c h / 0.12); }'
+    'a { box-shadow: --soft-shadow(2px 4px 18px hsl(calc(var(--hue) + 30), 100%, 50%)); }',
+    'a { box-shadow: calc(0.1111 * 2px) calc(0.1111 * 4px) calc(0.1111 * 18px) rgb(from hsl(calc(var(--hue) + 30), 100%, 50%) r g b / calc(alpha * 0.333)), calc(0.4444 * 2px) calc(0.4444 * 4px) calc(0.4444 * 18px) rgb(from hsl(calc(var(--hue) + 30), 100%, 50%) r g b / calc(alpha * 0.667)), calc(1 * 2px) calc(1 * 4px) calc(1 * 18px) rgb(from hsl(calc(var(--hue) + 30), 100%, 50%) r g b / calc(alpha * 1)); }'
+  )
+})
+
+test('handles multiple shadow functions of different types', () => {
+  run(
+    'a { box-shadow: --sharp-shadow(1px 2px 6px red), --soft-shadow(2px 4px 12px blue), --linear-shadow(3px 6px 18px green); }',
+    'a { box-shadow: calc(1 * 1px) calc(1 * 2px) calc(1 * 6px) rgb(from red r g b / calc(alpha * 1)), calc(0.25 * 2px) calc(0.25 * 4px) calc(0.25 * 12px) rgb(from blue r g b / calc(alpha * 0.5)), calc(1 * 2px) calc(1 * 4px) calc(1 * 12px) rgb(from blue r g b / calc(alpha * 1)), calc(0.1111 * 3px) calc(0.1111 * 6px) calc(0.1111 * 18px) rgb(from green r g b / calc(alpha * 1)), calc(0.4444 * 3px) calc(0.4444 * 6px) calc(0.4444 * 18px) rgb(from green r g b / calc(alpha * 1)), calc(1 * 3px) calc(1 * 6px) calc(1 * 18px) rgb(from green r g b / calc(alpha * 1)); }'
+  )
+})
+
+test('handles negative values', () => {
+  run(
+    'a { box-shadow: --sharp-shadow(-2px -4px 10px rgba(0,0,0,0.5)); }',
+    'a { box-shadow: calc(0.25 * -2px) calc(0.25 * -4px) calc(0.25 * 10px) rgb(from rgba(0,0,0,0.5) r g b / calc(alpha * 1)), calc(1 * -2px) calc(1 * -4px) calc(1 * 10px) rgb(from rgba(0,0,0,0.5) r g b / calc(alpha * 0.5)); }'
+  )
+})
+
+test('handles zero values', () => {
+  run(
+    'a { box-shadow: --linear-shadow(0px 0px 12px black); }',
+    'a { box-shadow: calc(0.25 * 0px) calc(0.25 * 0px) calc(0.25 * 12px) rgb(from black r g b / calc(alpha * 1)), calc(1 * 0px) calc(1 * 0px) calc(1 * 12px) rgb(from black r g b / calc(alpha * 1)); }'
+  )
+})
+
+test('handles different CSS units', () => {
+  run(
+    'a { box-shadow: --soft-shadow(1rem 2em 24px currentColor); }',
+    'a { box-shadow: calc(0.0625 * 1rem) calc(0.0625 * 2em) calc(0.0625 * 24px) rgb(from currentColor r g b / calc(alpha * 0.25)), calc(0.25 * 1rem) calc(0.25 * 2em) calc(0.25 * 24px) rgb(from currentColor r g b / calc(alpha * 0.5)), calc(0.5625 * 1rem) calc(0.5625 * 2em) calc(0.5625 * 24px) rgb(from currentColor r g b / calc(alpha * 0.75)), calc(1 * 1rem) calc(1 * 2em) calc(1 * 24px) rgb(from currentColor r g b / calc(alpha * 1)); }'
+  )
+})
+
+test('handles whitespace variations in parameters', () => {
+  run(
+    'a { box-shadow: --sharp-shadow( 1px   2px   6px   red ); }',
+    'a { box-shadow: calc(1 * 1px) calc(1 * 2px) calc(1 * 6px) rgb(from red r g b / calc(alpha * 1)); }'
+  )
+})
+
+test('preserves other box-shadow values when mixed', () => {
+  run(
+    'a { box-shadow: inset 0 1px 0 white, --sharp-shadow(2px 2px 4px black), 0 0 0 1px blue; }',
+    'a { box-shadow: inset 0 1px 0 white, calc(1 * 2px) calc(1 * 2px) calc(1 * 4px) rgb(from black r g b / calc(alpha * 1)), 0 0 0 1px blue; }'
+  )
+})
+
+test('ignores shadow functions in non-shadow properties', () => {
+  run(
+    'a { content: "--sharp-shadow(1px 2px 3px red)"; background: url("test--soft-shadow(1px 2px 3px blue)"); }',
+    'a { content: "--sharp-shadow(1px 2px 3px red)"; background: url("test--soft-shadow(1px 2px 3px blue)"); }'
+  )
+})
+
+test('handles deeply nested parentheses', () => {
+  run(
+    'a { box-shadow: --linear-shadow(calc((1px + 2px) * (3 + 4)) calc(min(max(1px, 2px), 10px)) 12px hsl(calc(var(--base-hue, 0) + (var(--offset, 30) * 2)), 50%, 50%)); }',
+    'a { box-shadow: calc(0.25 * calc((1px + 2px) * (3 + 4))) calc(0.25 * calc(min(max(1px, 2px), 10px))) calc(0.25 * 12px) rgb(from hsl(calc(var(--base-hue, 0) + (var(--offset, 30) * 2)), 50%, 50%) r g b / calc(alpha * 1)), calc(1 * calc((1px + 2px) * (3 + 4))) calc(1 * calc(min(max(1px, 2px), 10px))) calc(1 * 12px) rgb(from hsl(calc(var(--base-hue, 0) + (var(--offset, 30) * 2)), 50%, 50%) r g b / calc(alpha * 1)); }'
+  )
+})
+
+test('handles same shadow function multiple times in one declaration', () => {
+  run(
+    'a { box-shadow: --sharp-shadow(1px 1px 6px red), --sharp-shadow(3px 3px 12px blue); }',
+    'a { box-shadow: calc(1 * 1px) calc(1 * 1px) calc(1 * 6px) rgb(from red r g b / calc(alpha * 1)), calc(0.25 * 3px) calc(0.25 * 3px) calc(0.25 * 12px) rgb(from blue r g b / calc(alpha * 1)), calc(1 * 3px) calc(1 * 3px) calc(1 * 12px) rgb(from blue r g b / calc(alpha * 0.5)); }'
+  )
+})
+
+test('throws error for malformed parameters with extra spaces', () => {
+  throws(() => {
+    run('a { box-shadow: --sharp-shadow(1px 2px 3px red extra); }', '')
+  }, /requires exactly 4 parameters.*got 5/)
+})
+
+test('throws error for empty parameters', () => {
+  throws(() => {
+    run('a { box-shadow: --linear-shadow(   ); }', '')
+  }, /requires exactly 4 parameters/)
+})
+
+test('throws error when hex color is used as first argument', () => {
+  throws(() => {
+    run('a { box-shadow: --sharp-shadow(#ff0000 2px 10px blue); }', '')
+  }, /first parameter must be a length value.*got.*#ff0000/)
+})
+
+test('throws error when oklch() color is used as first argument', () => {
+  throws(() => {
+    run('a { box-shadow: --soft-shadow(oklch(0.5 0.2 180) 2px 10px red); }', '')
+  }, /first parameter must be a length value.*got.*oklch\(0\.5 0\.2 180\)/)
+})
+
+test('throws error when rgba() color is used as first argument', () => {
+  throws(() => {
+    run(
+      'a { box-shadow: --linear-shadow(rgba(255, 0, 0, 0.5) 2px 10px green); }',
+      ''
+    )
+  }, /first parameter must be a length value.*got.*rgba\(255, 0, 0, 0\.5\)/)
+})
+
+test('throws error when hsl() color is used as first argument', () => {
+  throws(() => {
+    run(
+      'a { box-shadow: --sharp-shadow(hsl(0, 100%, 50%) 2px 10px black); }',
+      ''
+    )
+  }, /first parameter must be a length value.*got.*hsl\(0, 100%, 50%\)/)
+})
+
+test('throws error when named color is used as first argument', () => {
+  throws(() => {
+    run('a { box-shadow: --soft-shadow(red 2px 10px blue); }', '')
+  }, /first parameter must be a length value.*got.*red/)
+})
+
+test('throws error when currentColor is used as first argument', () => {
+  throws(() => {
+    run('a { box-shadow: --linear-shadow(currentColor 2px 10px red); }', '')
+  }, /first parameter must be a length value.*got.*currentColor/)
+})
+
+test('handles multiple --soft-shadow in same declaration', () => {
+  run(
+    'a { box-shadow: --soft-shadow(1px 2px 12px red), --soft-shadow(3px 4px 18px blue); }',
+    'a { box-shadow: calc(0.25 * 1px) calc(0.25 * 2px) calc(0.25 * 12px) rgb(from red r g b / calc(alpha * 0.5)), calc(1 * 1px) calc(1 * 2px) calc(1 * 12px) rgb(from red r g b / calc(alpha * 1)), calc(0.1111 * 3px) calc(0.1111 * 4px) calc(0.1111 * 18px) rgb(from blue r g b / calc(alpha * 0.333)), calc(0.4444 * 3px) calc(0.4444 * 4px) calc(0.4444 * 18px) rgb(from blue r g b / calc(alpha * 0.667)), calc(1 * 3px) calc(1 * 4px) calc(1 * 18px) rgb(from blue r g b / calc(alpha * 1)); }'
+  )
+})
+
+test('handles inset keyword in shadow functions', () => {
+  run(
+    'a { box-shadow: --sharp-shadow(inset 2px 4px 10px red); }',
+    'a { box-shadow: inset calc(0.25 * 2px) calc(0.25 * 4px) calc(0.25 * 10px) rgb(from red r g b / calc(alpha * 1)), inset calc(1 * 2px) calc(1 * 4px) calc(1 * 10px) rgb(from red r g b / calc(alpha * 0.5)); }'
+  )
+})
+
+test('handles inset keyword at end of parameters', () => {
+  run(
+    'a { box-shadow: --soft-shadow(2px 4px 12px blue inset); }',
+    'a { box-shadow: inset calc(0.25 * 2px) calc(0.25 * 4px) calc(0.25 * 12px) rgb(from blue r g b / calc(alpha * 0.5)), inset calc(1 * 2px) calc(1 * 4px) calc(1 * 12px) rgb(from blue r g b / calc(alpha * 1)); }'
+  )
+})
+
+test('handles inset with multiple shadow functions', () => {
+  run(
+    'a { box-shadow: --linear-shadow(inset 1px 2px 6px red), --sharp-shadow(3px 4px 12px blue); }',
+    'a { box-shadow: inset calc(1 * 1px) calc(1 * 2px) calc(1 * 6px) rgb(from red r g b / calc(alpha * 1)), calc(0.25 * 3px) calc(0.25 * 4px) calc(0.25 * 12px) rgb(from blue r g b / calc(alpha * 1)), calc(1 * 3px) calc(1 * 4px) calc(1 * 12px) rgb(from blue r g b / calc(alpha * 0.5)); }'
+  )
+})
+
+test('handles parameters with internal commas in functions', () => {
+  run(
+    'a { box-shadow: --soft-shadow(1px 2px 12px rgba(255, 128, 64, 0.8)); }',
+    'a { box-shadow: calc(0.25 * 1px) calc(0.25 * 2px) calc(0.25 * 12px) rgb(from rgba(255, 128, 64, 0.8) r g b / calc(alpha * 0.5)), calc(1 * 1px) calc(1 * 2px) calc(1 * 12px) rgb(from rgba(255, 128, 64, 0.8) r g b / calc(alpha * 1)); }'
   )
 })

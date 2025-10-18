@@ -13,8 +13,10 @@
   "scripts": {
     "test:coverage": "bnt --coverage 100",
     "test:lint": "eslint .",
+    "test:build": "pnpm build",
     "test": "pnpm run /^test:/",
-    "start": "vite --host 0.0.0.0  test/demo/"
+    "start": "vite --host 0.0.0.0 test/demo/",
+    "build": "vite build test/demo/ -m production --base /postcss-smooth-shadow/"
   },
   "author": "Andrey Sitnik <andrey@sitnik.ru>",
   "license": "MIT",

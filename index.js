@@ -1,92 +1,210 @@
-function parseParameters(paramString) {
-  let params = []
-  let current = ''
-  let depth = 0
-  let inQuotes = false
-  let quoteChar = ''
+function easeInQuad(x) {
+  return x * x
+}
 
-  for (let i = 0; i < paramString.length; i++) {
-    let char = paramString[i]
+function toPx(value) {
+  let pixels
+  if (value.endsWith('px')) {
+    pixels = parseInt(value)
+  } else if (value.endsWith('rem')) {
+    pixels = parseInt(value) * 16
+  }
+  if (!pixels || isNaN(pixels)) {
+    return 5 * 6
+  } else {
+    return pixels
+  }
+}
 
-    if (!inQuotes && (char === '"' || char === "'")) {
-      inQuotes = true
-      quoteChar = char
-      current += char
-    } else if (inQuotes && char === quoteChar) {
-      inQuotes = false
-      quoteChar = ''
-      current += char
-    } else if (!inQuotes && char === '(') {
-      depth++
-      current += char
-    } else if (!inQuotes && char === ')') {
-      depth--
-      current += char
-    } else if (!inQuotes && char === ',' && depth === 0) {
-      params.push(current.trim())
-      current = ''
+export function renderShadows(type, inset, x, y, blur, color) {
+  let layers = Math.ceil(toPx(blur) / 6)
+  let layerIncrement = 1 / layers
+
+  let getAlpha = () => 1
+  if (type === 'sharp') {
+    getAlpha = i => 1 - i * layerIncrement
+  } else if (type === 'soft') {
+    getAlpha = i => (i + 1) * layerIncrement
+  }
+
+  let shadows = []
+  for (let i = 0; i < layers; i++) {
+    let step = Number(easeInQuad((i + 1) / layers).toFixed(4))
+    let iAlpha = parseFloat(getAlpha(i).toFixed(3))
+    let insetPrefix = inset ? 'inset ' : ''
+    let cssX = x === '0' ? '0' : `calc(${step} * ${x})`
+    let cssY = y === '0' ? '0' : `calc(${step} * ${y})`
+    let cssBlur = blur === '0' ? '0' : `calc(${step} * ${blur})`
+    let cssColor = `rgb(from ${color} r g b / calc(alpha * ${iAlpha}))`
+    shadows.push(`${insetPrefix}${cssX} ${cssY} ${cssBlur} ${cssColor}`)
+  }
+  return shadows
+}
+
+function isColorValue(value) {
+  value = value.trim()
+
+  if (/^#([0-9a-fA-F]{3}){1,2}([0-9a-fA-F]{2})?$/.test(value)) {
+    return true
+  }
+
+  if (/^(rgb|rgba|hsl|hsla|oklch|oklab|lch|lab|color)\s*\(/i.test(value)) {
+    return true
+  }
+
+  if (/^[a-zA-Z]+$/.test(value)) {
+    return true
+  }
+
+  return false
+}
+
+function checkParams(decl, funcName, params, startIndex) {
+  if (params.trim() === '') {
+    throw decl.error(
+      `${funcName} requires exactly 4 parameters (x, y, blur, color), got 0`,
+      { index: startIndex }
+    )
+  }
+
+  let parsedArgs = parseSpaceSeparatedParams(params.trim())
+  let hasInset = false
+  let processedArgs = []
+
+  for (let arg of parsedArgs) {
+    if (arg.toLowerCase() === 'inset') {
+      hasInset = true
     } else {
-      current += char
+      processedArgs.push(arg)
     }
   }
 
-  if (current.trim()) {
-    params.push(current.trim())
+  let expectedParams = 4
+  if (processedArgs.length !== expectedParams) {
+    throw decl.error(
+      `${funcName} requires exactly ${expectedParams} parameters (x, y, blur, color), got ${processedArgs.length}`,
+      { index: startIndex }
+    )
   }
 
-  return params
+  let firstParam = processedArgs[0].trim()
+  if (isColorValue(firstParam)) {
+    throw decl.error(
+      `${funcName} first parameter must be a length value (x-offset), got: ${firstParam}`,
+      { index: startIndex }
+    )
+  }
+
+  return { args: processedArgs, inset: hasInset }
 }
 
-function findMatchingParen(str, startIndex) {
-  let depth = 1
-  for (let i = startIndex + 1; i < str.length; i++) {
-    if (str[i] === '(') depth++
-    else if (str[i] === ')') depth--
-    if (depth === 0) return i
-    /* node:coverage ignore next 2 */
+function parseSpaceSeparatedParams(params) {
+  let args = []
+  let current = ''
+  let parenCount = 0
+  let i = 0
+
+  while (i < params.length) {
+    let char = params[i]
+
+    if (char === '(') {
+      parenCount++
+      current += char
+    } else if (char === ')') {
+      parenCount--
+      current += char
+    } else if (char === ' ' && parenCount === 0) {
+      if (current.trim()) {
+        args.push(current.trim())
+        current = ''
+      }
+    } else {
+      current += char
+    }
+    i++
   }
-  return -1
+
+  if (current.trim()) {
+    args.push(current.trim())
+  }
+
+  return args
+}
+
+function replaceFunctions(decl, func) {
+  let searchPattern = `--${func}-shadow(`
+  let result = decl.value
+  let currentIndex = 0
+
+  if (!result.includes(searchPattern)) {
+    return
+  }
+
+  let startIndex = result.indexOf(searchPattern, currentIndex)
+  while (startIndex !== -1) {
+    let openParenIndex = startIndex + searchPattern.length - 1
+    let parseResult = findClosingParenAndParseParams(result, openParenIndex)
+
+    if (parseResult.unclosed) {
+      throw decl.error(`Unclosed parenthesis in ${searchPattern}`, {
+        index: startIndex
+      })
+    }
+
+    let { endIndex, params } = parseResult
+    let paramResult = checkParams(decl, searchPattern, params, startIndex)
+    let [x, y, blur, color] = paramResult.args
+    let shadows = renderShadows(func, paramResult.inset, x, y, blur, color)
+    let replacement = shadows.join(', ')
+
+    result =
+      result.substring(0, startIndex) + replacement + result.substring(endIndex)
+    currentIndex = startIndex + replacement.length
+    startIndex = result.indexOf(searchPattern, currentIndex)
+  }
+
+  decl.value = result
+}
+
+function findClosingParenAndParseParams(text, openParenIndex) {
+  let current = ''
+  let parenCount = 1
+  let i = openParenIndex + 1
+
+  while (i < text.length && parenCount > 0) {
+    let char = text[i]
+
+    if (char === '(') {
+      parenCount++
+      current += char
+    } else if (char === ')') {
+      parenCount--
+      if (parenCount === 0) {
+        i++
+        break
+      } else {
+        current += char
+      }
+    } else {
+      current += char
+    }
+    i++
+  }
+
+  if (parenCount > 0) {
+    return { unclosed: true }
+  }
+
+  return { endIndex: i, params: current.trim(), unclosed: false }
 }
 
 let plugin = () => {
-  console.log(1)
   return {
     Declaration(decl) {
-      if (decl.value.includes('--smooth-shadow(')) {
-        let result = decl.value
-        let index = 0
-
-        let funcStart = result.indexOf('--smooth-shadow(', index)
-        while (funcStart !== -1) {
-          let parenStart = funcStart + '--smooth-shadow('.length - 1
-          let parenEnd = findMatchingParen(result, parenStart)
-          if (parenEnd === -1) break
-
-          let paramString = result.substring(parenStart + 1, parenEnd)
-          let params = parseParameters(paramString)
-
-          if (params.length < 2 || params.length > 3) {
-            throw decl.error(
-              '--smooth-shadow() requires 2 or 3 parameters: color, size, and optional spread (defaults to 3)'
-            )
-          }
-
-          let [color, size, spread = '3'] = params
-
-          let replacement =
-            `0 calc(${size} / ${spread}) calc(${size} / ${spread} * 2) oklch(from ${color} l c h / 0.25), ` +
-            `0 calc(${size} / ${spread} * 2) calc(${size} / ${spread} * 3) oklch(from ${color} l c h / 0.18), ` +
-            `0 calc(${size} / ${spread} * 3) calc(${size} / ${spread} * 4) oklch(from ${color} l c h / 0.12)`
-
-          result =
-            result.substring(0, funcStart) +
-            replacement +
-            result.substring(parenEnd + 1)
-          index = funcStart + replacement.length
-          funcStart = result.indexOf('--smooth-shadow(', index)
-        }
-
-        decl.value = result
+      if (decl.prop.includes('shadow') && decl.value.includes('-shadow(')) {
+        replaceFunctions(decl, 'sharp')
+        replaceFunctions(decl, 'soft')
+        replaceFunctions(decl, 'linear')
       }
     },
     postcssPlugin: 'postcss-smooth-shadow'
