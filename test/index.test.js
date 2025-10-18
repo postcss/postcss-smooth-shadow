@@ -1,8 +1,8 @@
-import { equal, throws } from 'node:assert/strict'
+import { deepEqual, equal, throws } from 'node:assert/strict'
 import { test } from 'node:test'
 import postcss from 'postcss'
 
-import plugin from '../index.js'
+import plugin, { renderShadows } from '../index.js'
 
 function run(input, output, opts) {
   let result = postcss([plugin(opts)]).process(input, { from: undefined })
@@ -16,6 +16,13 @@ test('replaces sharp-shadow function', () => {
     'a { box-shadow: --sharp-shadow(2px 4px 10px red); }',
     'a { box-shadow: calc(0.25 * 2px) calc(0.25 * 4px) calc(0.25 * 10px) rgb(from red r g b / calc(alpha * 1)), calc(1 * 2px) calc(1 * 4px) calc(1 * 10px) rgb(from red r g b / calc(alpha * 0.5)); }'
   )
+})
+
+test('has JS API', () => {
+  deepEqual(renderShadows('sharp', false, '2px', '4px', '10px', 'red'), [
+    'calc(0.25 * 2px) calc(0.25 * 4px) calc(0.25 * 10px) rgb(from red r g b / calc(alpha * 1))',
+    'calc(1 * 2px) calc(1 * 4px) calc(1 * 10px) rgb(from red r g b / calc(alpha * 0.5))'
+  ])
 })
 
 test('replaces soft-shadow function', () => {
