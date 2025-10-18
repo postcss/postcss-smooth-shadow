@@ -24,6 +24,10 @@
   "engines": {
     "node": "^20.0 || ^22.0 || >=24.0"
   },
+  "exports": {
+    ".": "./index.js",
+    "./package.json": "./package.json"
+  },
   "funding": [
     {
       "type": "opencollective",
