@@ -64,13 +64,13 @@ The plugins supports 3 shadows types. You can try them on [`smoothshadows.com`](
 
 ```css
 .soft {
-  box-shadow: --soft-shadow(10px 0 8px oklch(0 0 0 / 10%));
+  box-shadow: --soft-shadow(0 8px 8px oklch(0 0 0 / 10%));
 }
 .sharp {
-  box-shadow: --sharp-shadow(10px 0 8px oklch(0 0 0 / 10%));
+  box-shadow: --sharp-shadow(0 8px 8px oklch(0 0 0 / 10%));
 }
 .linear {
-  box-shadow: --linear-shadow(10px 0 8px oklch(0 0 0 / 10%));
+  box-shadow: --linear-shadow(0 8px 8px oklch(0 0 0 / 10%));
 }
 ```
 
