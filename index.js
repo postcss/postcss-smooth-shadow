@@ -43,8 +43,8 @@ function findMatchingParen(str, startIndex) {
     if (str[i] === '(') depth++
     else if (str[i] === ')') depth--
     if (depth === 0) return i
+    /* node:coverage ignore next 2 */
   }
-  /* c8 ignore next */
   return -1
 }
 

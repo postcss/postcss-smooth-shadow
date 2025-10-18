@@ -10,8 +10,7 @@
     "smooth"
   ],
   "scripts": {
-    "unit": "node --test index.test.js",
-    "test:coverage": "c8 node --test index.test.js",
+    "test:coverage": "bnt --coverage 100",
     "test:lint": "eslint .",
     "test": "pnpm run /^test:/"
   },
@@ -37,7 +36,7 @@
   "devDependencies": {
     "@logux/eslint-config": "^56.1.0",
     "actions-up": "^1.4.1",
-    "c8": "^10.1.3",
+    "better-node-test": "^0.8.3",
     "clean-publish": "^5.2.2",
     "eslint": "^9.37.0",
     "multiocular": "^0.8.1",
@@ -50,14 +49,6 @@
     "semi": false,
     "singleQuote": true,
     "trailingComma": "none"
-  },
-  "c8": {
-    "exclude": [
-      "*.test.*"
-    ],
-    "lines": 100,
-    "reporter": "lcov",
-    "check-coverage": true
   },
   "clean-publish": {
     "cleanDocs": true

@@ -2,7 +2,7 @@ let { equal, throws } = require('node:assert/strict')
 let { test } = require('node:test')
 let postcss = require('postcss')
 
-let plugin = require('./')
+let plugin = require('../')
 
 function run(input, output, opts) {
   let result = postcss([plugin(opts)]).process(input, { from: undefined })
