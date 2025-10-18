@@ -12,6 +12,7 @@
         box-sizing: border-box;
       }
       .example {
+        display: inline-block;
         width: 15rem;
         border-radius: 6px;
         font-size: 10px;
@@ -19,66 +20,72 @@
         background: oklch(1 0 0);
         box-sizing: border-box;
         padding: 1rem 1rem;
+        margin: 2.5rem 1rem;
 
-        & + & {
-          margin-top: 3rem;
+        &.is-native {
+          box-shadow: 0 32px 24px oklch(0 0 0 / 15%);
         }
 
         &.is-1 {
-          box-shadow: --soft-shadow(0 32px 24px oklch(0 0 0 / 8%));
+          box-shadow: --soft-shadow(0 32px 24px oklch(0 0 0 / 15%));
         }
 
         &.is-2 {
-          box-shadow: --sharp-shadow(0 32px 24px oklch(0 0 0 / 8%));
+          box-shadow: --sharp-shadow(0 32px 24px oklch(0 0 0 / 15%));
         }
 
         &.is-3 {
-          box-shadow: --linear-shadow(0 32px 24px oklch(0 0 0 / 8%));
+          box-shadow: --linear-shadow(0 32px 24px oklch(0 0 0 / 15%));
         }
 
         &.is-4 {
-          box-shadow: --soft-shadow(16px 32px 24px oklch(0 0 0 / 8%));
+          box-shadow: --soft-shadow(16px 32px 24px oklch(0 0 0 / 15%));
         }
 
         &.is-5 {
-          box-shadow: --sharp-shadow(0 1px 2px oklch(0 0 0 / 20%));
+          box-shadow: --sharp-shadow(0 1px 2px oklch(0 0 0 / 40%));
         }
 
         &.is-6 {
-          box-shadow: --sharp-shadow(inset 0 2px 5px oklch(0 0 0 / 20%));
+          box-shadow: --sharp-shadow(inset 0 2px 5px oklch(0 0 0 / 40%));
         }
       }
     </style>
   </head>
   <body>
+    <pre class="example is-native">
+
+0 32px 24px oklch(0 0 0 / 15%)
+    </pre>
     <pre class="example is-1">
 --soft-shadow(
-  0 32px 24px oklch(0 0 0 / 8%)
+  0 32px 24px oklch(0 0 0 / 15%)
 )</pre
     >
     <pre class="example is-2">
 --sharp-shadow(
-  0 32px 24px oklch(0 0 0 / 8%)
+  0 32px 24px oklch(0 0 0 / 15%)
 )</pre
     >
     <pre class="example is-3">
 --linear-shadow(
-  0 32px 24px oklch(0 0 0 / 8%)
+  0 32px 24px oklch(0 0 0 / 15%)
 )</pre
     >
+    <br />
     <pre class="example is-4">
 --soft-shadow(
-  16px 32px 24px oklch(0 0 0 / 8%)
+  16px 32px 24px oklch(0 0 0 / 15%)
 )</pre
     >
     <pre class="example is-5">
 --sharp-shadow(
-  0 1px 2px oklch(0 0 0 / 15%)
+  0 1px 2px oklch(0 0 0 / 40%)
 )</pre
     >
     <pre class="example is-6">
 --sharp-shadow(
-  inset 0 1px 2px oklch(0 0 0 / 15%)
+  inset 0 1px 2px oklch(0 0 0 / 40%)
 )</pre
     >
   </body>
