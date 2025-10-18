@@ -9,8 +9,8 @@ import plugin, { renderShadows } from '../index.js'
 
 const FIXTURES = join(import.meta.dirname, 'fixtures')
 
-function run(input, opts) {
-  postcss([plugin(opts)]).process(input, { from: undefined }).css
+export function run(input) {
+  return postcss([plugin({})]).process(input, { from: undefined }).css
 }
 
 let tests = readdirSync(FIXTURES).filter(i => !i.endsWith('.out.css'))
