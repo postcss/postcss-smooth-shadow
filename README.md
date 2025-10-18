@@ -4,27 +4,24 @@
      title="Philosopher’s stone, logo of PostCSS"
      src="https://postcss.org/logo-leftp.svg">
 
-[PostCSS](https://github.com/postcss/postcss) plugin to generate more realistic [“smooth” shadows](https://tobiasahlin.com/blog/layered-smooth-box-shadows/).
+[PostCSS](https://github.com/postcss/postcss) plugin to generate [more realistic smooth shadows](https://tobiasahlin.com/blog/layered-smooth-box-shadows/). See [demo](https://postcss.github.io/postcss-smooth-shadow/).
 
 ```css
 .card {
-  box-shadow: --soft-shadow(0 1rem 2rem oklch(0 0 0 / 10%));
+  box-shadow: --soft-shadow(0 0.5rem 1rem oklch(0 0 0 / 10%));
 }
 ```
 
 ```css
 .card {
   box-shadow:
-    0 calc(0.0278 * 1rem) calc(0.0278 * 2rem) rgb(from oklch(0 0 0 / 10%) r g b / calc(alpha * 0.167)),
-    0 calc(0.1111 * 1rem) calc(0.1111 * 2rem) rgb(from oklch(0 0 0 / 10%) r g b / calc(alpha * 0.333)),
-    0 calc(0.25 * 1rem) calc(0.25 * 2rem) rgb(from oklch(0 0 0 / 10%) r g b / calc(alpha * 0.5)),
-    0 calc(0.4444 * 1rem) calc(0.4444 * 2rem) rgb(from oklch(0 0 0 / 10%) r g b / calc(alpha * 0.667)),
-    0 calc(0.6944 * 1rem) calc(0.6944 * 2rem) rgb(from oklch(0 0 0 / 10%) r g b / calc(alpha * 0.833)),
-    0 calc(1 * 1rem) calc(1 * 2rem) rgb(from oklch(0 0 0 / 10%) r g b / calc(alpha * 1));
+    0 calc(0.1111 * 0.5rem) calc(0.1111 * 1rem) rgb(from oklch(0 0 0 / 10%) r g b / calc(alpha * 0.333)),
+    0 calc(0.4444 * 0.5rem) calc(0.4444 * 1rem) rgb(from oklch(0 0 0 / 10%) r g b / calc(alpha * 0.667)),
+    0 calc(1 * 0.5rem) calc(1 * 1rem) rgb(from oklch(0 0 0 / 10%) r g b / calc(alpha * 1));
 }
 ```
 
-It supports non-px units like `rem`, 3 shadow types, inset shadows, and any color format (we recommends [`oklch()`](https://evilmartians.com/chronicles/oklch-in-css-why-quit-rgb-hsl)).
+It supports non-px units like `rem`, 3 shadow types, `inset` shadows, and any color format (we recommends [`oklch()`](https://evilmartians.com/chronicles/oklch-in-css-why-quit-rgb-hsl)).
 
 ---
 
