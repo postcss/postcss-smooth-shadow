@@ -193,7 +193,7 @@ function findClosingParenAndParseParams(text, openParenIndex) {
 let plugin = () => {
   return {
     Declaration(decl) {
-      if (decl.prop.includes('shadow') && decl.value.includes('-shadow(')) {
+      if (decl.value.includes('-shadow(')) {
         replaceFunctions(decl, 'sharp')
         replaceFunctions(decl, 'soft')
         replaceFunctions(decl, 'linear')
