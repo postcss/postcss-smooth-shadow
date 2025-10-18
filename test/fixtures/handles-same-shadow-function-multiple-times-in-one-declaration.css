@@ -1,1 +1,4 @@
-a { box-shadow: --sharp-shadow(1px 1px 6px red), --sharp-shadow(3px 3px 12px blue); }
+a {
+  box-shadow:
+    --sharp-shadow(1px 1px 6px red), --sharp-shadow(3px 3px 12px blue);
+}

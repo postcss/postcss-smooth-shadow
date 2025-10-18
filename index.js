@@ -139,7 +139,14 @@ function replaceFunctions(decl, func) {
     let paramResult = checkParams(decl, searchPattern + ')', params, startIndex)
     let [x, y, blur, color] = paramResult.args
     let shadows = renderShadows(func, paramResult.inset, x, y, blur, color)
-    let replacement = shadows.join(', ')
+
+    let replacement
+    if (decl.raws.between && decl.raws.before) {
+      replacement =
+        `${decl.raws.before}  ` + shadows.join(`,${decl.raws.before}  `)
+    } else {
+      replacement = shadows.join(', ')
+    }
 
     result =
       result.substring(0, startIndex) + replacement + result.substring(endIndex)

@@ -1,1 +1,3 @@
-a { box-shadow: --sharp-shadow(inset 2px 4px 10px red); }
+a {
+  box-shadow: --sharp-shadow(inset 2px 4px 10px red);
+}

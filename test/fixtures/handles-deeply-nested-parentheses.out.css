@@ -1,1 +1,5 @@
-a { box-shadow: calc(0.25 * calc((1px + 2px) * (3 + 4))) calc(0.25 * calc(min(max(1px, 2px), 10px))) calc(0.25 * 12px) rgb(from hsl(calc(var(--base-hue, 0) + (var(--offset, 30) * 2)), 50%, 50%) r g b / calc(alpha * 1)), calc(1 * calc((1px + 2px) * (3 + 4))) calc(1 * calc(min(max(1px, 2px), 10px))) calc(1 * 12px) rgb(from hsl(calc(var(--base-hue, 0) + (var(--offset, 30) * 2)), 50%, 50%) r g b / calc(alpha * 1)); }
+a {
+  box-shadow: 
+    calc(0.25 * calc((1px + 2px) * (3 + 4))) calc(0.25 * calc(min(max(1px, 2px), 10px))) calc(0.25 * 12px) rgb(from hsl(calc(var(--base-hue, 0) + (var(--offset, 30) * 2)), 50%, 50%) r g b / calc(alpha * 1)),
+    calc(1 * calc((1px + 2px) * (3 + 4))) calc(1 * calc(min(max(1px, 2px), 10px))) calc(1 * 12px) rgb(from hsl(calc(var(--base-hue, 0) + (var(--offset, 30) * 2)), 50%, 50%) r g b / calc(alpha * 1));
+}

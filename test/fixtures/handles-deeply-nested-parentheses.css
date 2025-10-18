@@ -1,1 +1,6 @@
-a { box-shadow: --linear-shadow(calc((1px + 2px) * (3 + 4)) calc(min(max(1px, 2px), 10px)) 12px hsl(calc(var(--base-hue, 0) + (var(--offset, 30) * 2)), 50%, 50%)); }
+a {
+  box-shadow: --linear-shadow(
+    calc((1px + 2px) * (3 + 4)) calc(min(max(1px, 2px), 10px)) 12px
+      hsl(calc(var(--base-hue, 0) + (var(--offset, 30) * 2)), 50%, 50%)
+  );
+}

@@ -1,1 +1,5 @@
-a { box-shadow: --linear-shadow(calc(min(1px, 2px) + max(3px, 4px)) calc(clamp(1px, 50%, 10px)) 12px red); }
+a {
+  box-shadow: --linear-shadow(
+    calc(min(1px, 2px) + max(3px, 4px)) calc(clamp(1px, 50%, 10px)) 12px red
+  );
+}

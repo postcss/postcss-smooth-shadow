@@ -1,1 +1,5 @@
-a { box-shadow: --linear-shadow(calc(1% + 1px) 2px 10rem oklch(0 0 0 / var(--test))); }
+a {
+  box-shadow: --linear-shadow(
+    calc(1% + 1px) 2px 10rem oklch(0 0 0 / var(--test))
+  );
+}

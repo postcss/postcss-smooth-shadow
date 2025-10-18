@@ -1,1 +1,8 @@
-a { box-shadow: calc(0.25 * 1px) calc(0.25 * 2px) calc(0.25 * 12px) rgb(from red r g b / calc(alpha * 0.5)), calc(1 * 1px) calc(1 * 2px) calc(1 * 12px) rgb(from red r g b / calc(alpha * 1)), calc(0.1111 * 3px) calc(0.1111 * 4px) calc(0.1111 * 18px) rgb(from blue r g b / calc(alpha * 0.333)), calc(0.4444 * 3px) calc(0.4444 * 4px) calc(0.4444 * 18px) rgb(from blue r g b / calc(alpha * 0.667)), calc(1 * 3px) calc(1 * 4px) calc(1 * 18px) rgb(from blue r g b / calc(alpha * 1)); }
+a {
+  box-shadow: 
+    calc(0.25 * 1px) calc(0.25 * 2px) calc(0.25 * 12px) rgb(from red r g b / calc(alpha * 0.5)),
+    calc(1 * 1px) calc(1 * 2px) calc(1 * 12px) rgb(from red r g b / calc(alpha * 1)), 
+    calc(0.1111 * 3px) calc(0.1111 * 4px) calc(0.1111 * 18px) rgb(from blue r g b / calc(alpha * 0.333)),
+    calc(0.4444 * 3px) calc(0.4444 * 4px) calc(0.4444 * 18px) rgb(from blue r g b / calc(alpha * 0.667)),
+    calc(1 * 3px) calc(1 * 4px) calc(1 * 18px) rgb(from blue r g b / calc(alpha * 1));
+}

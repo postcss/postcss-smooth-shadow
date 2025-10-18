@@ -1,1 +1,5 @@
-a { box-shadow: calc(0.25 * 2px) calc(0.25 * 4px) calc(0.25 * 12px) rgb(from oklch(0.5 0.2 180 / var(--alpha)) r g b / calc(alpha * 0.5)), calc(1 * 2px) calc(1 * 4px) calc(1 * 12px) rgb(from oklch(0.5 0.2 180 / var(--alpha)) r g b / calc(alpha * 1)); }
+a {
+  box-shadow: 
+    calc(0.25 * 2px) calc(0.25 * 4px) calc(0.25 * 12px) rgb(from oklch(0.5 0.2 180 / var(--alpha)) r g b / calc(alpha * 0.5)),
+    calc(1 * 2px) calc(1 * 4px) calc(1 * 12px) rgb(from oklch(0.5 0.2 180 / var(--alpha)) r g b / calc(alpha * 1));
+}
