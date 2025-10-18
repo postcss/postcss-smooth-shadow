@@ -41,61 +41,45 @@ export function renderShadows(type, inset, x, y, blur, color) {
   return shadows
 }
 
-function isColorValue(value) {
+function isColor(value) {
   value = value.trim()
-
   if (/^#([0-9a-fA-F]{3}){1,2}([0-9a-fA-F]{2})?$/.test(value)) {
     return true
   }
-
   if (/^(rgb|rgba|hsl|hsla|oklch|oklab|lch|lab|color)\s*\(/i.test(value)) {
     return true
   }
-
   if (/^[a-zA-Z]+$/.test(value)) {
     return true
   }
-
   return false
 }
 
-function checkParams(decl, funcName, params, startIndex) {
-  if (params.trim() === '') {
-    throw decl.error(
-      `${funcName} requires exactly 4 parameters (x, y, blur, color), got 0`,
-      { index: startIndex }
-    )
-  }
-
+function checkParams(decl, func, params, startIndex) {
   let parsedArgs = parseSpaceSeparatedParams(params.trim())
-  let hasInset = false
-  let processedArgs = []
-
+  let inset = false
+  let args = []
   for (let arg of parsedArgs) {
     if (arg.toLowerCase() === 'inset') {
-      hasInset = true
+      inset = true
     } else {
-      processedArgs.push(arg)
+      args.push(arg)
     }
   }
-
-  let expectedParams = 4
-  if (processedArgs.length !== expectedParams) {
+  if (args.length !== 4) {
     throw decl.error(
-      `${funcName} requires exactly ${expectedParams} parameters (x, y, blur, color), got ${processedArgs.length}`,
+      `${func} requires 4 params (inset? x y blur color) got ${args.length}`,
       { index: startIndex }
     )
   }
-
-  let firstParam = processedArgs[0].trim()
-  if (isColorValue(firstParam)) {
+  let first = args[0].trim()
+  if (isColor(first)) {
     throw decl.error(
-      `${funcName} first parameter must be a length value (x-offset), got: ${firstParam}`,
+      `${func} first parameter must be a length not color ${first}`,
       { index: startIndex }
     )
   }
-
-  return { args: processedArgs, inset: hasInset }
+  return { args, inset }
 }
 
 function parseSpaceSeparatedParams(params) {
@@ -152,7 +136,7 @@ function replaceFunctions(decl, func) {
     }
 
     let { endIndex, params } = parseResult
-    let paramResult = checkParams(decl, searchPattern, params, startIndex)
+    let paramResult = checkParams(decl, searchPattern + ')', params, startIndex)
     let [x, y, blur, color] = paramResult.args
     let shadows = renderShadows(func, paramResult.inset, x, y, blur, color)
     let replacement = shadows.join(', ')
