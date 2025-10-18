@@ -18,6 +18,7 @@ function toPx(value) {
 
 export function renderShadows(type, inset, x, y, blur, color) {
   let layers = Math.ceil(toPx(blur) / 6)
+  if (layers > 10) layers = 10
   let layerIncrement = 1 / layers
 
   let getAlpha = () => 1
@@ -29,7 +30,7 @@ export function renderShadows(type, inset, x, y, blur, color) {
 
   let shadows = []
   for (let i = 0; i < layers; i++) {
-    let step = Number(easeInQuad((i + 1) / layers).toFixed(4))
+    let step = Number(easeInQuad((i + 1) / layers).toFixed(3))
     let iAlpha = parseFloat(getAlpha(i).toFixed(3))
     let insetPrefix = inset ? 'inset ' : ''
     let cssX = x === '0' ? '0' : `calc(${step} * ${x})`

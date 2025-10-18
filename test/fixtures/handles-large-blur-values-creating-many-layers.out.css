@@ -1,9 +1,9 @@
 a {
   box-shadow: 
-    calc(0.0278 * 2px) calc(0.0278 * 2px) calc(0.0278 * 36px) rgb(from black r g b / calc(alpha * 1)),
-    calc(0.1111 * 2px) calc(0.1111 * 2px) calc(0.1111 * 36px) rgb(from black r g b / calc(alpha * 0.833)),
+    calc(0.028 * 2px) calc(0.028 * 2px) calc(0.028 * 36px) rgb(from black r g b / calc(alpha * 1)),
+    calc(0.111 * 2px) calc(0.111 * 2px) calc(0.111 * 36px) rgb(from black r g b / calc(alpha * 0.833)),
     calc(0.25 * 2px) calc(0.25 * 2px) calc(0.25 * 36px) rgb(from black r g b / calc(alpha * 0.667)),
-    calc(0.4444 * 2px) calc(0.4444 * 2px) calc(0.4444 * 36px) rgb(from black r g b / calc(alpha * 0.5)),
-    calc(0.6944 * 2px) calc(0.6944 * 2px) calc(0.6944 * 36px) rgb(from black r g b / calc(alpha * 0.333)),
+    calc(0.444 * 2px) calc(0.444 * 2px) calc(0.444 * 36px) rgb(from black r g b / calc(alpha * 0.5)),
+    calc(0.694 * 2px) calc(0.694 * 2px) calc(0.694 * 36px) rgb(from black r g b / calc(alpha * 0.333)),
     calc(1 * 2px) calc(1 * 2px) calc(1 * 36px) rgb(from black r g b / calc(alpha * 0.167));
 }

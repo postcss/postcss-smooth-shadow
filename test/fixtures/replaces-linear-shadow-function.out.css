@@ -1,6 +1,6 @@
 a {
   box-shadow: 
-    calc(0.1111 * 3px) calc(0.1111 * 6px) calc(0.1111 * 18px) rgb(from green r g b / calc(alpha * 1)),
-    calc(0.4444 * 3px) calc(0.4444 * 6px) calc(0.4444 * 18px) rgb(from green r g b / calc(alpha * 1)),
+    calc(0.111 * 3px) calc(0.111 * 6px) calc(0.111 * 18px) rgb(from green r g b / calc(alpha * 1)),
+    calc(0.444 * 3px) calc(0.444 * 6px) calc(0.444 * 18px) rgb(from green r g b / calc(alpha * 1)),
     calc(1 * 3px) calc(1 * 6px) calc(1 * 18px) rgb(from green r g b / calc(alpha * 1));
 }
