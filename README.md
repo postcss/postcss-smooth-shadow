@@ -21,7 +21,7 @@
 }
 ```
 
-It supports non-px units like `rem`, 3 shadow types, `inset` shadows, and any color format (we recommends [`oklch()`](https://evilmartians.com/chronicles/oklch-in-css-why-quit-rgb-hsl)).
+It supports non-px units like `rem`, 3 shadow types, `inset` shadows, and any color format (we recommend [`oklch()`](https://evilmartians.com/chronicles/oklch-in-css-why-quit-rgb-hsl)).
 
 ---
 
