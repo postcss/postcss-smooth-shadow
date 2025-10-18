@@ -1,0 +1,85 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>PostCSS Smooth Shadow demo</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 2rem;
+        background: oklch(0.97 0.003 264);
+        min-height: 100vh;
+        box-sizing: border-box;
+      }
+      .example {
+        width: 15rem;
+        border-radius: 6px;
+        font-size: 10px;
+        font-family: monospace;
+        background: oklch(1 0 0);
+        box-sizing: border-box;
+        padding: 1rem 1rem;
+
+        & + & {
+          margin-top: 3rem;
+        }
+
+        &.is-1 {
+          box-shadow: 0 calc(0.0625 * 32px) calc(0.0625 * 24px) rgb(from oklch(0 0 0 / 8%) r g b / calc(alpha * 0.25)), 0 calc(0.25 * 32px) calc(0.25 * 24px) rgb(from oklch(0 0 0 / 8%) r g b / calc(alpha * 0.5)), 0 calc(0.5625 * 32px) calc(0.5625 * 24px) rgb(from oklch(0 0 0 / 8%) r g b / calc(alpha * 0.75)), 0 calc(1 * 32px) calc(1 * 24px) rgb(from oklch(0 0 0 / 8%) r g b / calc(alpha * 1));
+        }
+
+        &.is-2 {
+          box-shadow: 0 calc(0.0625 * 32px) calc(0.0625 * 24px) rgb(from oklch(0 0 0 / 8%) r g b / calc(alpha * 1)), 0 calc(0.25 * 32px) calc(0.25 * 24px) rgb(from oklch(0 0 0 / 8%) r g b / calc(alpha * 0.75)), 0 calc(0.5625 * 32px) calc(0.5625 * 24px) rgb(from oklch(0 0 0 / 8%) r g b / calc(alpha * 0.5)), 0 calc(1 * 32px) calc(1 * 24px) rgb(from oklch(0 0 0 / 8%) r g b / calc(alpha * 0.25));
+        }
+
+        &.is-3 {
+          box-shadow: 0 calc(0.0625 * 32px) calc(0.0625 * 24px) rgb(from oklch(0 0 0 / 8%) r g b / calc(alpha * 1)), 0 calc(0.25 * 32px) calc(0.25 * 24px) rgb(from oklch(0 0 0 / 8%) r g b / calc(alpha * 1)), 0 calc(0.5625 * 32px) calc(0.5625 * 24px) rgb(from oklch(0 0 0 / 8%) r g b / calc(alpha * 1)), 0 calc(1 * 32px) calc(1 * 24px) rgb(from oklch(0 0 0 / 8%) r g b / calc(alpha * 1));
+        }
+
+        &.is-4 {
+          box-shadow: calc(0.0625 * 16px) calc(0.0625 * 32px) calc(0.0625 * 24px) rgb(from oklch(0 0 0 / 8%) r g b / calc(alpha * 0.25)), calc(0.25 * 16px) calc(0.25 * 32px) calc(0.25 * 24px) rgb(from oklch(0 0 0 / 8%) r g b / calc(alpha * 0.5)), calc(0.5625 * 16px) calc(0.5625 * 32px) calc(0.5625 * 24px) rgb(from oklch(0 0 0 / 8%) r g b / calc(alpha * 0.75)), calc(1 * 16px) calc(1 * 32px) calc(1 * 24px) rgb(from oklch(0 0 0 / 8%) r g b / calc(alpha * 1));
+        }
+
+        &.is-5 {
+          box-shadow: 0 calc(1 * 1px) calc(1 * 2px) rgb(from oklch(0 0 0 / 20%) r g b / calc(alpha * 1));
+        }
+
+        &.is-6 {
+          box-shadow: inset 0 calc(1 * 2px) calc(1 * 5px) rgb(from oklch(0 0 0 / 20%) r g b / calc(alpha * 1));
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <pre class="example is-1">
+--soft-shadow(
+  0 32px 24px oklch(0 0 0 / 8%)
+)</pre
+    >
+    <pre class="example is-2">
+--sharp-shadow(
+  0 32px 24px oklch(0 0 0 / 8%)
+)</pre
+    >
+    <pre class="example is-3">
+--linear-shadow(
+  0 32px 24px oklch(0 0 0 / 8%)
+)</pre
+    >
+    <pre class="example is-4">
+--soft-shadow(
+  16px 32px 24px oklch(0 0 0 / 8%)
+)</pre
+    >
+    <pre class="example is-5">
+--sharp-shadow(
+  0 1px 2px oklch(0 0 0 / 15%)
+)</pre
+    >
+    <pre class="example is-6">
+--sharp-shadow(
+  inset 0 1px 2px oklch(0 0 0 / 15%)
+)</pre
+    >
+  </body>
+</html>
