@@ -1,3 +1,5 @@
+import valueParser from 'postcss-value-parser'
+
 import {
   clamp,
   getValuesForBezierCurve,
@@ -10,16 +12,99 @@ import {
  * @param {{ value: string }} decl
  */
 export function replaceLushFunctions(decl) {
-  let { color, crispy, inset, offsetX, offsetY, oomph, resolution, variant } =
-    parseLushShadow(decl.value)
+  let parsed = valueParser(decl.value)
+
+  let args = [
+    'variant',
+    'inset',
+    'light-x',
+    'light-y',
+    'oomph',
+    'crispy',
+    'resolution',
+    'color'
+  ]
+
+  let node = parsed.nodes.find(
+    ({ type, value }) => type === 'function' && value === '--lush-shadow'
+  )
+
+  if (node === undefined) {
+    return
+  }
+
+  let nodes = node.nodes.filter(fnNode => fnNode.type !== 'space')
+
+  if (nodes.length !== 7 && nodes.length !== 8) {
+    throw decl.error(
+      `'--lush-shadow(variant inset? light-x light-y oomph crispy resolution color) requires 7-8 params got ${nodes.length}`,
+      { index: node.startIndex }
+    )
+  }
+
+  /**
+   * @type {[string, boolean, number, number, number, number, number, string]}
+   */
+  let [variant, inset, x, y, oomph, crispy, resolution, color] = nodes.reduce(
+    (previous, valueNode, index) => {
+      if (index === 0 && valueNode.type === 'word') {
+        if (['high', 'low', 'medium'].includes(valueNode.value.toLowerCase())) {
+          return [...previous, valueNode.value]
+        }
+
+        throw decl.error(
+          `'--lush-shadow(variant inset? light-x light-y oomph crispy resolution color) variant to be "low", "medium" or "high" got ${valueNode.value}`,
+          { index: valueNode.sourceIndex }
+        )
+      }
+
+      if (index === 1 && valueNode.type === 'word') {
+        if (valueNode.value === 'inset') {
+          return [...previous, true]
+        } else if (/^-?\d+(\.\d+)?$/.test(valueNode.value)) {
+          return [...previous, false, Number(valueNode.value)]
+        } else {
+          throw decl.error(
+            `'--lush-shadow(variant inset? light-x light-y oomph crispy resolution color) ${args[index + 1]} to be number got ${valueNode.value}`,
+            { index: valueNode.sourceIndex }
+          )
+        }
+      }
+
+      if (index < nodes.length - 1) {
+        if (/^-?\d+(\.\d+)?$/.test(valueNode.value)) {
+          return [...previous, Number(valueNode.value)]
+        } else {
+          throw decl.error(
+            `'--lush-shadow(variant inset? light-x light-y oomph crispy resolution color) ${args[index]} to be number got ${valueNode.value}`,
+            { index: node.sourceIndex + valueNode.sourceIndex }
+          )
+        }
+      }
+
+      if (valueNode.type === 'word' && index === nodes.length - 1) {
+        return [...previous, valueNode.value]
+      }
+
+      if (valueNode.type === 'function' && index === nodes.length - 1) {
+        return [
+          ...previous,
+          decl.value.substring(valueNode.sourceIndex, valueNode.sourceEndIndex)
+        ]
+      }
+
+      return previous
+    },
+    []
+  )
 
   let [low, medium, high] = generateShadows({
     color,
     crispy,
     inset,
     lightSource: {
-      x: offsetX,
-      y: offsetY
+      x,
+      y
     },
     oomph,
     resolution
@@ -41,98 +126,6 @@ export function replaceLushFunctions(decl) {
       decl.value = before + medium.flat().join(between)
       break
   }
-}
-
-/**
- * Parses --lush-shadow(variant, light-x, light-y, oomph, crispy, resolution, color)
- * @param {string} value - e.g. "--lush-shadow(high 0.24 -0.21 0.52 0.76 0.75 oklch(0 0 0 / 40%))"
- * @returns {Object|null}
- */
-function parseLushShadow(value) {
-  // Strip wrapper
-  let content = value
-    .replace(/^--lush-shadow\s*\(/, '')
-    .replace(/\)\s*$/, '')
-    .trim()
-
-  if (!content) return null
-
-  let parts = []
-  let current = ''
-  let parenDepth = 0
-  let inColor = false
-
-  // Tokenize respecting nested color functions/var()
-  for (let char of content) {
-    if (char === '(') {
-      parenDepth++
-      current += char
-      if (parenDepth === 1 && !/^[a-zA-Z-]+$/.test(current.trim())) {
-        inColor = true
-      }
-    } else if (char === ')') {
-      parenDepth--
-      current += char
-      if (parenDepth === 0) inColor = false
-    } else if (char === ' ' && parenDepth === 0 && !inColor) {
-      if (current.trim()) parts.push(current.trim())
-      current = ''
-    } else {
-      current += char
-    }
-  }
-  if (current.trim()) parts.push(current.trim())
-
-  // Result structure – numbers are now actual numbers
-  let result = {
-    color: null, // string
-    crispy: null, // number | null
-    inset: false,
-    offsetX: null, // number | null
-    offsetY: null, // number | null
-    oomph: null, // number | null
-    resolution: null, // number | null
-    variant: null
-  }
-
-  let i = 0
-
-  // 1. Variant (required, first token)
-  if (parts.length === 0) return null
-  result.variant = parts[i++]
-  if (!result.variant || /^[0-9.-]/.test(result.variant)) {
-    return null // probably missing variant name
-  }
-
-  // 2. Optional inset
-  if (i < parts.length && parts[i] === 'inset') {
-    result.inset = true
-    i++
-  }
-
-  // 3. Numeric parameters → convert to number
-  let numFields = ['offsetX', 'offsetY', 'oomph', 'crispy', 'resolution']
-  let numIdx = 0
-
-  while (i < parts.length && numIdx < numFields.length) {
-    let token = parts[i]
-    // Very permissive number check (including scientific notation)
-    let num = Number(token)
-    if (!isNaN(num) && token.trim() !== '') {
-      result[numFields[numIdx]] = num
-      numIdx++
-      i++
-    } else {
-      break
-    }
-  }
-
-  // 4. Remaining = color (can contain spaces inside functions)
-  if (i < parts.length) {
-    result.color = parts.slice(i).join(' ')
-  }
-
-  return result
 }
 
 /**
@@ -162,6 +155,9 @@ function generateShadows({
   oomph,
   resolution
 }) {
+  /**
+   * @type {[string[], string[], string[]]}
+   */
   let output = []
 
   let SHADOW_LAYER_LIMITS = {
