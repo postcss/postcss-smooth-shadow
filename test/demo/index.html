@@ -51,6 +51,34 @@
         &.is-6 {
           box-shadow: --sharp-shadow(inset 0 2px 5px oklch(0 0 0 / 40%));
         }
+
+        &.is-lush-low {
+          width: 25rem;
+          box-shadow: --lush-shadow(
+            low -0.25 -0.5 0.5 0.5 0.75 oklch(0 0 0 / 15%)
+          );
+        }
+
+        &.is-lush-medium {
+          width: 25rem;
+          box-shadow: --lush-shadow(
+            medium -0.25 -0.5 0.5 0.5 0.75 oklch(0 0 0 / 15%)
+          );
+        }
+
+        &.is-lush-high {
+          width: 25rem;
+          box-shadow: --lush-shadow(
+            high -0.25 -0.5 0.5 0.5 0.75 oklch(0 0 0 / 15%)
+          );
+        }
+
+        &.is-lush-high-inset {
+          width: 25rem;
+          box-shadow: --lush-shadow(
+            medium inset -0.25 -0.5 0.5 0.5 0.75 oklch(0 0 0 / 15%)
+          );
+        }
       }
     </style>
   </head>
@@ -90,5 +118,29 @@
   inset 0 1px 2px oklch(0 0 0 / 40%)
 )</pre
     >
+
+    <div>
+      <pre class="example is-lush-low">
+--lush-shadow(
+  low -0.25 -0.5 0.5 0.5 0.75 oklch(0 0 0 / 15%)
+)</pre
+      >
+      <pre class="example is-lush-medium">
+--lush-shadow(
+  medium -0.25 -0.5 0.5 0.5 0.75 oklch(0 0 0 / 15%)
+)</pre
+      >
+      <pre class="example is-lush-high">
+--lush-shadow(
+  high -0.25 -0.5 0.5 0.5 0.75 oklch(0 0 0 / 15%)
+)</pre
+      >
+      <pre class="example is-lush-high-inset">
+--lush-shadow(
+  medium inset -0.25 -0.5 0.5 0.5 0.75 oklch(0 0 0 / 15%)
+)</pre
+      >
+    </div>
+    </div>
   </body>
 </html>

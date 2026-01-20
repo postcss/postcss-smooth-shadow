@@ -1,7 +1,7 @@
 import type { PluginCreator, AtRule } from 'postcss'
 
 export function renderShadows(
-  type: 'linear' | 'sharp' | 'soft',
+  type: 'linear' | 'sharp' | 'soft' | 'lush',
   inset: boolean,
   x: number,
   y: number,

@@ -1,0 +1,6 @@
+a {
+  box-shadow: 
+    0.3px 0.5px 0.7px hsl(from oklch(0 0 0 / 15%) h s l / 0.1),
+    0.4px 0.8px 1px -1.2px hsl(from oklch(0 0 0 / 15%) h s l / 0.1),
+    1px 2px 2.5px -2.5px hsl(from oklch(0 0 0 / 15%) h s l / 0.1);
+}
