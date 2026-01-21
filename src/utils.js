@@ -77,7 +77,7 @@ export function roundTo(value, places = 0) {
  *   endPoint: number,
  *   startPoint: number }} points
  * @param {number} t
- * @returns
+ * @returns {[number, number]}
  */
 export function getValuesForBezierCurve(
   { controlPoint1, controlPoint2, endPoint, startPoint },

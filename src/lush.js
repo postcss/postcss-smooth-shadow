@@ -12,91 +12,8 @@ import {
  * @param {{ value: string }} decl
  */
 export function replaceLushFunctions(decl) {
-  let parsed = valueParser(decl.value)
-
-  let args = [
-    'variant',
-    'inset',
-    'light-x',
-    'light-y',
-    'oomph',
-    'crispy',
-    'resolution',
-    'color'
-  ]
-
-  let node = parsed.nodes.find(
-    ({ type, value }) => type === 'function' && value === '--lush-shadow'
-  )
-
-  if (node === undefined) {
-    return
-  }
-
-  let nodes = node.nodes.filter(fnNode => fnNode.type !== 'space')
-
-  if (nodes.length !== 7 && nodes.length !== 8) {
-    throw decl.error(
-      `'--lush-shadow(variant inset? light-x light-y oomph crispy resolution color) requires 7-8 params got ${nodes.length}`,
-      { index: node.startIndex }
-    )
-  }
-
-  /**
-   * @type {[string, boolean, number, number, number, number, number, string]}
-   */
-  let [variant, inset, x, y, oomph, crispy, resolution, color] = nodes.reduce(
-    (previous, valueNode, index) => {
-      if (index === 0 && valueNode.type === 'word') {
-        if (['high', 'low', 'medium'].includes(valueNode.value.toLowerCase())) {
-          return [...previous, valueNode.value]
-        }
-
-        throw decl.error(
-          `'--lush-shadow(variant inset? light-x light-y oomph crispy resolution color) variant to be "low", "medium" or "high" got ${valueNode.value}`,
-          { index: valueNode.sourceIndex }
-        )
-      }
-
-      if (index === 1 && valueNode.type === 'word') {
-        if (valueNode.value === 'inset') {
-          return [...previous, true]
-        } else if (/^-?\d+(\.\d+)?$/.test(valueNode.value)) {
-          return [...previous, false, Number(valueNode.value)]
-        } else {
-          throw decl.error(
-            `'--lush-shadow(variant inset? light-x light-y oomph crispy resolution color) ${args[index + 1]} to be number got ${valueNode.value}`,
-            { index: valueNode.sourceIndex }
-          )
-        }
-      }
-
-      if (index < nodes.length - 1) {
-        if (/^-?\d+(\.\d+)?$/.test(valueNode.value)) {
-          return [...previous, Number(valueNode.value)]
-        } else {
-          throw decl.error(
-            `'--lush-shadow(variant inset? light-x light-y oomph crispy resolution color) ${args[index]} to be number got ${valueNode.value}`,
-            { index: node.sourceIndex + valueNode.sourceIndex }
-          )
-        }
-      }
-
-      if (valueNode.type === 'word' && index === nodes.length - 1) {
-        return [...previous, valueNode.value]
-      }
-
-      if (valueNode.type === 'function' && index === nodes.length - 1) {
-        return [
-          ...previous,
-          decl.value.substring(valueNode.sourceIndex, valueNode.sourceEndIndex)
-        ]
-      }
-
-      return previous
-    },
-    []
-  )
+  let [variant, inset, x, y, oomph, crispy, resolution, color] =
+    parseLushShadow(decl)
 
   let [low, medium, high] = generateShadows({
     color,
@@ -126,6 +43,92 @@ export function replaceLushFunctions(decl) {
       decl.value = before + medium.flat().join(between)
       break
   }
+
+  return decl
+}
+
+/**
+ * @param {{ value: string }} decl
+ * @returns {[string, boolean, number, number, number, number, number, string]}
+ */
+export function parseLushShadow(decl) {
+  let parsed = valueParser(decl.value)
+
+  let args = [
+    'variant',
+    'inset',
+    'light-x',
+    'light-y',
+    'oomph',
+    'crispy',
+    'resolution',
+    'color'
+  ]
+
+  let node = parsed.nodes.find(
+    ({ type, value }) => type === 'function' && value === '--lush-shadow'
+  )
+
+  if (node === undefined) {
+    return
+  }
+
+  let nodes = node.nodes.filter(
+    fnNode =>
+      fnNode.type !== 'space' &&
+      fnNode.type !== 'comment' &&
+      fnNode.type !== 'div'
+  )
+
+  if (nodes.length !== 7 && nodes.length !== 8) {
+    throw decl.error(
+      `'--lush-shadow(variant inset? light-x light-y oomph crispy resolution color) requires 7-8 params got ${nodes.length}`,
+      { index: node.startIndex }
+    )
+  }
+
+  return nodes.reduce((previous, valueNode, index) => {
+    if (index === 0 && valueNode.type === 'word') {
+      if (['high', 'low', 'medium'].includes(valueNode.value.toLowerCase())) {
+        return [...previous, valueNode.value]
+      }
+
+      throw decl.error(
+        `'--lush-shadow(variant inset? light-x light-y oomph crispy resolution color) variant to be "low", "medium" or "high" got ${valueNode.value}`,
+        { index: valueNode.sourceIndex }
+      )
+    }
+
+    if (index === 1 && valueNode.type === 'word') {
+      if (valueNode.value === 'inset') {
+        return [...previous, true]
+      } else if (/^-?\d+(\.\d+)?$/.test(valueNode.value)) {
+        previous.push(false)
+      }
+    }
+
+    if (index < nodes.length - 1) {
+      if (/^-?\d+(\.\d+)?$/.test(valueNode.value)) {
+        return [...previous, Number(valueNode.value)]
+      } else {
+        let argIndex = previous.length + Math.abs(args.length - nodes.length)
+
+        throw decl.error(
+          `'--lush-shadow(variant inset? light-x light-y oomph crispy resolution color) ${args[argIndex]} to be number got ${valueNode.value}`,
+          { index: node.sourceIndex + valueNode.sourceIndex }
+        )
+      }
+    }
+
+    if (valueNode.type === 'word' && index === nodes.length - 1) {
+      return [...previous, valueNode.value]
+    }
+
+    return [
+      ...previous,
+      decl.value.substring(valueNode.sourceIndex, valueNode.sourceEndIndex)
+    ]
+  }, [])
 }
 
 /**
@@ -385,8 +388,6 @@ function calculateBlurRadius({ crispy, x, y }) {
  * @returns
  */
 function calculateSpread({ crispy, layerIndex, numOfLayers }) {
-  // return 0;
-
   if (layerIndex === 0) {
     return 0
   }

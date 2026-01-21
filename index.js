@@ -123,10 +123,6 @@ function replaceFunctions(decl, func) {
   let result = decl.value
   let currentIndex = 0
 
-  if (!result.includes(searchPattern)) {
-    return
-  }
-
   let startIndex = result.indexOf(searchPattern, currentIndex)
   while (startIndex !== -1) {
     let openParenIndex = startIndex + searchPattern.length - 1
