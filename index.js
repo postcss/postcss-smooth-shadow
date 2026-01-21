@@ -1,4 +1,4 @@
-import { replaceLushFunctions } from './src/lush.js'
+import { renderLushShadows, replaceLushFunctions } from './src/lush.js'
 
 function easeInQuad(x) {
   return x * x
@@ -213,3 +213,5 @@ let plugin = () => {
 plugin.postcss = true
 
 export default plugin
+
+export { renderLushShadows }

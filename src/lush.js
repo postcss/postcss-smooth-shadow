@@ -15,17 +15,15 @@ export function replaceLushFunctions(decl) {
   let [variant, inset, x, y, oomph, crispy, resolution, color] =
     parseLushShadow(decl)
 
-  let [low, medium, high] = generateShadows({
-    color,
-    crispy,
+  let [low, medium, high] = renderLushShadows(
     inset,
-    lightSource: {
-      x,
-      y
-    },
+    x,
+    y,
     oomph,
-    resolution
-  })
+    crispy,
+    resolution,
+    color
+  )
 
   let before =
     decl.raws.between && decl.raws.before ? `${decl.raws.before}  ` : ''
@@ -137,27 +135,24 @@ export function parseLushShadow(decl) {
  * A small shadow might only have 2 shadows, a large might have 6.
  * Though, this is affected by the `layers` property
  *
- * @param {{
- *   inset: boolean;
- *   color: string;
- *   crispy: number;
- *   lightSource: {
- *     x: number;
- *     y: number;
- *   };
- *   oomph: number;
- *   resolution: number;
- * }} props
+ * @param {boolean} inset
+ * @param {number} lightX
+ * @param {number} lightY
+ * @param {number} oomph
+ * @param {number} crispy
+ * @param {number} resolution
+ * @param {color} color
  * @returns
  */
-function generateShadows({
-  color,
-  crispy,
+export function renderLushShadows(
   inset,
-  lightSource,
+  lightX,
+  lightY,
   oomph,
-  resolution
-}) {
+  crispy,
+  resolution,
+  color
+) {
   /**
    * @type {[string[], string[], string[]]}
    */
@@ -204,7 +199,10 @@ function generateShadows({
       let { x, y } = calculateShadowOffsets({
         crispy,
         layerIndex,
-        lightSource,
+        lightSource: {
+          x: lightX,
+          y: lightY
+        },
         numOfLayers,
         oomph,
         size
