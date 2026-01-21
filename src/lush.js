@@ -141,8 +141,8 @@ export function parseLushShadow(decl) {
  * @param {number} oomph
  * @param {number} crispy
  * @param {number} resolution
- * @param {color} color
- * @returns
+ * @param {string} color
+ * @returns {[string[], string[], string[]]}
  */
 export function renderLushShadows(
   inset,
@@ -153,9 +153,6 @@ export function renderLushShadows(
   resolution,
   color
 ) {
-  /**
-   * @type {[string[], string[], string[]]}
-   */
   let output = []
 
   let SHADOW_LAYER_LIMITS = {
