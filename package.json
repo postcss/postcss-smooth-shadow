@@ -18,7 +18,7 @@
     "start": "vite --host 0.0.0.0 test/demo/",
     "build": "vite build test/demo/ -m production --base /postcss-smooth-shadow/"
   },
-  "author": "Andrey Sitnik <andrey@sitnik.ru>",
+  "author": "Andrey Sitnik <andrey@sitnik.es>",
   "license": "MIT",
   "repository": "postcss/postcss-smooth-shadow",
   "engines": {
