@@ -1,3 +1,5 @@
+import { renderLushShadows, replaceLushFunctions } from './src/lush.js'
+
 function easeInQuad(x) {
   return x * x
 }
@@ -121,10 +123,6 @@ function replaceFunctions(decl, func) {
   let result = decl.value
   let currentIndex = 0
 
-  if (!result.includes(searchPattern)) {
-    return
-  }
-
   let startIndex = result.indexOf(searchPattern, currentIndex)
   while (startIndex !== -1) {
     let openParenIndex = startIndex + searchPattern.length - 1
@@ -193,10 +191,20 @@ function findClosingParenAndParseParams(text, openParenIndex) {
 let plugin = () => {
   return {
     Declaration(decl) {
-      if (decl.value.includes('-shadow(')) {
+      if (decl.value.includes('--sharp-shadow(')) {
         replaceFunctions(decl, 'sharp')
+      }
+
+      if (decl.value.includes('--soft-shadow(')) {
         replaceFunctions(decl, 'soft')
+      }
+
+      if (decl.value.includes('--linear-shadow(')) {
         replaceFunctions(decl, 'linear')
+      }
+
+      if (decl.value.includes('--lush-shadow(')) {
+        replaceLushFunctions(decl)
       }
     },
     postcssPlugin: 'postcss-smooth-shadow'
@@ -205,3 +213,5 @@ let plugin = () => {
 plugin.postcss = true
 
 export default plugin
+
+export { renderLushShadows }

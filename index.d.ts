@@ -9,6 +9,16 @@ export function renderShadows(
   color: string
 ): string
 
+export function renderLushShadows(
+  inset: boolean,
+  lightX: number,
+  lightY: number,
+  oomph: number,
+  crispy: number,
+  resolution: number,
+  color: string
+): [string[], string[], string[]]
+
 declare const plugin: PluginCreator<{}>
 
 export default plugin
